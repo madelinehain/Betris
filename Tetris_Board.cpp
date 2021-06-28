@@ -7,15 +7,34 @@
 using std::cout;
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "maddiech@bu.edu");
+    sf::RenderWindow window(sf::VideoMode(720, 800), "maddiech@bu.edu");
     sf::Texture t;
-    t.loadFromFile("background.png");
+    sf::Texture titleLoad;
+    sf::Texture nextLoad;
+    sf::Texture scoreLoad;
+
+    t.loadFromFile("THISbackground.png");
+    titleLoad.loadFromFile("title.png");
+    nextLoad.loadFromFile("next.png");
+    scoreLoad.loadFromFile("score.png");
     
-    if(!t.loadFromFile("background.png")) {
+    if(!t.loadFromFile("THISbackground.png")) {
         return -1;
     }
-    
+    if(!titleLoad.loadFromFile("title.png")) {
+        return -1;
+    }
+    if(!nextLoad.loadFromFile("next.png")) {
+        return -1;
+    }
+    if(!scoreLoad.loadFromFile("score.png")) {
+        return -1;
+    }
+
     sf::Sprite background(t);
+    sf::Sprite title(titleLoad);
+    sf::Sprite next(nextLoad);
+    sf::Sprite score(scoreLoad);
     
     window.setFramerateLimit(20);
     
@@ -29,7 +48,14 @@ int main() {
         }
 
         window.clear();
+        background.setPosition(0,0);
+        title.setPosition(420,20);
+        next.setPosition(440,220);
+        score.setPosition(420,460);
         window.draw(background);
+        window.draw(title);
+        window.draw(next);
+        window.draw(score);
         window.display();
     }
     return 0;
