@@ -15,8 +15,7 @@ int main() {
     nextLoad.loadFromFile("next.png");
     scoreLoad.loadFromFile("score.png");
     
-    if(!t.loadFromFile("THISbackground.png")) return -1
-
+    if(!t.loadFromFile("THISbackground.png")) return -1;
     if(!titleLoad.loadFromFile("title.png")) return -1;
     if(!nextLoad.loadFromFile("next.png")) return -1;
     if(!scoreLoad.loadFromFile("score.png")) return -1;
