@@ -12,7 +12,7 @@
 # make uses the modification dates to determine
 # is the programs need to be re-built
 
-all: board
+all: Tetris
 
-board: board.cpp
-	g++ board.cpp -o board -lsfml-graphics -lsfml-window -lsfml-system
+Tetris: Tetris_Board.cpp
+	g++ Tetris_Board.cpp -o Tetris -lsfml-graphics -lsfml-window -lsfml-system
