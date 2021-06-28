@@ -8,28 +8,18 @@ using std::cout;
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(720, 800), "maddiech@bu.edu");
-    sf::Texture t;
-    sf::Texture titleLoad;
-    sf::Texture nextLoad;
-    sf::Texture scoreLoad;
+    sf::Texture t, titleLoad, nextLoad, scoreLoad;
 
     t.loadFromFile("THISbackground.png");
     titleLoad.loadFromFile("title.png");
     nextLoad.loadFromFile("next.png");
     scoreLoad.loadFromFile("score.png");
     
-    if(!t.loadFromFile("THISbackground.png")) {
-        return -1;
-    }
-    if(!titleLoad.loadFromFile("title.png")) {
-        return -1;
-    }
-    if(!nextLoad.loadFromFile("next.png")) {
-        return -1;
-    }
-    if(!scoreLoad.loadFromFile("score.png")) {
-        return -1;
-    }
+    if(!t.loadFromFile("THISbackground.png")) return -1
+
+    if(!titleLoad.loadFromFile("title.png")) return -1;
+    if(!nextLoad.loadFromFile("next.png")) return -1;
+    if(!scoreLoad.loadFromFile("score.png")) return -1;
 
     sf::Sprite background(t);
     sf::Sprite title(titleLoad);

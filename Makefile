@@ -15,4 +15,4 @@
 all: board
 
 board: board.cpp
-	g++ board.cpp -o board -lsfml-graphics -lsfml-window -lsfml-system
+	g++ Tetris_Board.cpp -o tetris -lsfml-graphics -lsfml-window -lsfml-system
