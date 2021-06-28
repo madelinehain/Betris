@@ -14,5 +14,10 @@
 
 all: Tetris
 
+<<<<<<< HEAD
 Tetris: Tetris_Board.cpp
 	g++ Tetris_Board.cpp -o Tetris -lsfml-graphics -lsfml-window -lsfml-system
+=======
+board: board.cpp
+	g++ Tetris_Board.cpp -o tetris -lsfml-graphics -lsfml-window -lsfml-system
+>>>>>>> 8f9906801d5a324506c267e1417754259dcf5297
