@@ -1,21 +1,25 @@
 // Copyright 2021 Madeline Clare Hain maddiech@bu.edu
-
-#include <SFML/Graphics.hpp>
-#include <iostream>
+// Copyright 2021 Mallory Gerosa gerosam@bu.edu
+// https://github.com/madelinehain/EC327_Team_10_Final_Project.git
 #include <chrono>
 #include <ctime>
+#include <iostream>
 #include "Piece.hpp"
+#include <SFML/Graphics.hpp>
+
 using std::cout;
 using sf::Vector2;
 using std::vector;
 using std::array;
 
 const int BOARDLENGTH = 400;
-// const int BOARDLENGTH_INBLOCKS = 10;
 const int BOARDHEIGHT = 800;
-// const int BOARDHEIGHT_INBLOCKS = 20;
 const int WINDOWHEIGHT = 1000;
 const float CELLSIZE = 40;
+
+void createNewPiece() {
+  Piece p(), newp();
+}
 
 int main() {
     int points;
@@ -25,25 +29,25 @@ int main() {
     sf::Texture t, titleLoad, nextLoad, scoreLoad;
     // cell representing each of the four blocks of a peice
     sf::RectangleShape cell(sf::Vector2f(CELLSIZE, CELLSIZE));
-    // Piece p();
+    Piece currentPiece, nextPiece;
 
     t.loadFromFile("THISbackground.png");
     titleLoad.loadFromFile("title.png");
     nextLoad.loadFromFile("next.png");
     scoreLoad.loadFromFile("score.png");
-    
-    if(!t.loadFromFile("THISbackground.png")) return -1;
-    if(!titleLoad.loadFromFile("title.png")) return -1;
-    if(!nextLoad.loadFromFile("next.png")) return -1;
-    if(!scoreLoad.loadFromFile("score.png")) return -1;
+
+    if (!t.loadFromFile("THISbackground.png")) return -1;
+    if (!titleLoad.loadFromFile("title.png")) return -1;
+    if (!nextLoad.loadFromFile("next.png")) return -1;
+    if (!scoreLoad.loadFromFile("score.png")) return -1;
 
     sf::Sprite background(t);
     sf::Sprite title(titleLoad);
     sf::Sprite next(nextLoad);
     sf::Sprite score(scoreLoad);
-    
+
     window.setFramerateLimit(20);
-    
+
     while (window.isOpen()) {
         sf::Event event;
         while (true) {
@@ -70,27 +74,24 @@ int main() {
             if (event.key.code == sf::Keyboard::Up) {
             // to do: rotate()
             }
-// I have to add in the Piece class for these to work
-
-            // // move piece left
-            // if (event.key.code == sf::Keyboard::Left) {
-            //   // check that coordinates are within the bounds of the board
-            //   // and that the space is available
-            //   if (p.canPieceMove(board, 0, -1) == true) {
-            //     for (int i = 0; i < 4; i++) {
-            //       p.blocks.at(i).x -= 1;
-            //     }      
-            //   }
-            // }
-            // // move piece right
-            // if (event.key.code == sf::Keyboard::Right) {
-            //   if (p.canPieceMove(board, 0, 1) == true) {
-            //     for (int i = 0; i < 4; i++) {
-            //       p.blocks.at(i).x += 1;
-            //     }              
-            //   }
-            // }
-
+            // move piece left
+            if (event.key.code == sf::Keyboard::Left) {
+              // check that coordinates are within the bounds of the board
+              // and that the space is available
+              if (currentPiece.canPieceMove(board, 0, -1) == true) {
+                for (int i = 0; i < 4; i++) {
+                  currentPiece.blocks.at(i).x -= 1;
+                }
+              }
+            }
+            // move piece right
+            if (event.key.code == sf::Keyboard::Right) {
+              if (currentPiece.canPieceMove(board, 0, 1) == true) {
+                for (int i = 0; i < 4; i++) {
+                  currentPiece.blocks.at(i).x += 1;
+                }
+              }
+            }
             if (event.key.code == sf::Keyboard::Down) {
               // to do: drop()
             }
@@ -98,10 +99,10 @@ int main() {
         }
 
         window.clear();
-        background.setPosition(0,0);
-        title.setPosition(420,20);
-        next.setPosition(440,220);
-        score.setPosition(420,460);
+        background.setPosition(0, 0);
+        title.setPosition(420, 20);
+        next.setPosition(440, 220);
+        score.setPosition(420, 460);
         window.draw(background);
         window.draw(title);
         window.draw(next);

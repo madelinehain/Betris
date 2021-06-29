@@ -13,6 +13,5 @@
 # is the programs need to be re-built
 
 all: board
-
 tetris: Tetris_Board.cpp
-	g++ Tetris_Board.cpp -o tetris -lsfml-graphics -lsfml-window -lsfml-system
+	g++ -g Piece.cpp Tetris_Board.cpp -o tetris -lsfml-graphics -lsfml-window -lsfml-system

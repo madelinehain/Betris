@@ -1,3 +1,5 @@
+#ifndef _Piece_HPP
+#define _Piece_HPP
 #include <array>
 #include <vector>
 #include <SFML/Graphics.hpp>
@@ -19,5 +21,5 @@ class Piece {
   bool canPieceMove(int board[][BOARDLENGTH_INBLOCKS], int chx, int chy);
   void rotate();
   void drop();
-
 };
+#endif  // _Piece_HPP
