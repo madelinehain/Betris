@@ -7,46 +7,54 @@
 #include "Piece.hpp"
 #include <SFML/Graphics.hpp>
 
-using std::cout;
-using sf::Vector2;
-using std::vector;
 using std::array;
+using std::cout;
+using std::to_string;
+using std::vector;
+using sf::Vector2;
 
-const int BOARDLENGTH = 400;
-const int BOARDHEIGHT = 800;
-const int WINDOWHEIGHT = 1000;
-const float CELLSIZE = 40;
-
-void createNewPiece() {
-  Piece p(), newp();
-}
+extern const float CELLSIZE;
 
 int main() {
   int points;
-  int board[BOARDHEIGHT_INBLOCKS][BOARDLENGTH_INBLOCKS];
-  bool rotate = false, isGameOver = false, canMove = true;
+  int board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] {0};
+  bool isGameOver = false, canMove = true, piecePlaced = false;
   sf::RenderWindow window(sf::VideoMode(720, 800), "Tetris");
-  sf::Texture t, titleLoad, nextLoad, scoreLoad;
-  // cell representing each of the four blocks of a peice
-  sf::RectangleShape cell(sf::Vector2f(CELLSIZE, CELLSIZE));
-  Piece currentPiece, nextPiece;
-
-  t.loadFromFile("Images/background.png");
-  titleLoad.loadFromFile("Images/titleSmall.png");
-  nextLoad.loadFromFile("Images/next.png");
-  scoreLoad.loadFromFile("Images/score.png");
-
-  if (!t.loadFromFile("Images/background.png")) return -1;
-  if (!titleLoad.loadFromFile("Images/titleSmall.png")) return -1;
-  if (!nextLoad.loadFromFile("Images/next.png")) return -1;
-  if (!scoreLoad.loadFromFile("Images/score.png")) return -1;
-
-  sf::Sprite background(t);
-  sf::Sprite title(titleLoad);
-  sf::Sprite next(nextLoad);
-  sf::Sprite score(scoreLoad);
-
   window.setFramerateLimit(20);
+  sf::RectangleShape cell(sf::Vector2f(CELLSIZE, CELLSIZE));  // 4 cells per block
+  Piece currentPiece;
+
+  sf::Font font;
+  sf::Texture t, titleLoad, nextLoad, scoreLoad;
+  t.loadFromFile("Resources/background.png");
+  titleLoad.loadFromFile("Resources/titleSmall.png");
+  nextLoad.loadFromFile("Resources/next.png");
+  scoreLoad.loadFromFile("Resources/score.png");
+  font.loadFromFile("Resources/TetrisFont.ttf");
+  if (!t.loadFromFile("Resources/background.png")) return -1;
+  if (!titleLoad.loadFromFile("Resources/titleSmall.png")) return -1;
+  if (!nextLoad.loadFromFile("Resources/next.png")) return -1;
+  if (!scoreLoad.loadFromFile("Resources/score.png")) return -1;
+  if (!font.loadFromFile("Resources/TetrisFont.ttf")) return -1;
+
+  sf::Sprite background(t), title(titleLoad), next(nextLoad), score(scoreLoad);
+  sf::Text gameScore;
+
+  next.setOrigin(120, 0);
+  next.setPosition(560, 220);
+  title.setOrigin(140, 0);
+  title.setPosition(560, 20);
+  background.setOrigin(200, 0);
+  background.setPosition(200, 0);
+  score.setOrigin(140, 0);
+  score.setPosition(560, 460);
+  gameScore.setString(to_string(points));
+  sf::FloatRect scorebox = gameScore.getGlobalBounds();
+  gameScore.setCharacterSize(40);
+  gameScore.setFillColor(sf::Color::White);
+  gameScore.setOrigin(scorebox.width / 2.0, 0);
+  gameScore.setPosition(560, 460);
+
 
   while (window.isOpen()) {
     sf::Event event;
@@ -58,9 +66,15 @@ int main() {
       // reset board
       if (isGameOver == true) {
         points = 0;
-        board[BOARDHEIGHT_INBLOCKS][BOARDLENGTH_INBLOCKS] = {0};
+        board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] = {0};
         isGameOver = false;
         // maybe we do something about starting a new game here
+      }
+      // create a new piece
+      if (piecePlaced == false) {
+        Piece nextPiece();
+         Piece currentPiece;
+        piecePlaced = false;
       }
       while (window.pollEvent(event)) {
         // close window
@@ -78,17 +92,17 @@ int main() {
           if (event.key.code == sf::Keyboard::Left) {
             // check that coordinates are within the bounds of the board
             // and that the space is available
-            if (currentPiece.canPieceMove(board, 0, -1) == true) {
-              for (int i = 0; i < 4; i++) {
-                currentPiece.blocks.at(i).x -= 1;
+            if (currentPiece.canPieceMove(board, -1, 0) == true) {
+              for (int block = 0; block < 4; block++) {
+                currentPiece.blocks.at(block).x -= 1;
               }
             }
           }
           // move piece right
           if (event.key.code == sf::Keyboard::Right) {
             if (currentPiece.canPieceMove(board, 0, 1) == true) {
-              for (int i = 0; i < 4; i++) {
-                currentPiece.blocks.at(i).x += 1;
+              for (int block = 0; block < 4; block++) {
+                currentPiece.blocks.at(block).x += 1;
               }
             }
           }

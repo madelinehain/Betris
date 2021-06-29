@@ -1,7 +1,9 @@
 #include "Piece.hpp"
 
+// x = col y = row
 Piece::Piece() {
-  PieceID = rand() % 7;
+  nextPieceID = rand() % 7;
+  PieceID = nextPieceID;
   // I (straight)
   if (PieceID == 0) {
     blocks.at(0).x = 0;  // x o o o
@@ -11,9 +13,9 @@ Piece::Piece() {
     blocks.at(2).x = 0;
     blocks.at(2).y = 2;
     blocks.at(3).x = 0;
-    blocks.at(3).x = 3;
-    origin.x = 1;
-    origin.y = 0;
+    blocks.at(3).y = 3;
+    origin.x = 0;
+    origin.y = 1;
     pieceColor = sf::Color::Green;
   }
   // Z
@@ -40,8 +42,8 @@ Piece::Piece() {
     blocks.at(2).y = 1;
     blocks.at(3).x = 0;
     blocks.at(3).y = 2;
-    origin.x = 1;
-    origin.y = 0;
+    origin.x = 0;
+    origin.y = 1;
     pieceColor = sf::Color::Blue;
   }
   // L
@@ -54,8 +56,8 @@ Piece::Piece() {
     blocks.at(2).y = 2;
     blocks.at(3).x = 1;
     blocks.at(3).y = 2;
-    origin.x = 1;
-    origin.y = 0;
+    origin.x = 0;
+    origin.y = 1;
     pieceColor = sf::Color::Yellow;
   }
   // J (reverse L)
@@ -79,7 +81,7 @@ Piece::Piece() {
     blocks.at(1).x = 0;   // o o o o
     blocks.at(1).y = 1;   // o o o o
     blocks.at(2).x = 1;
-    blocks.at(2).y - 0;
+    blocks.at(2).y = 0;
     blocks.at(3).x = 1;
     blocks.at(3).y = 1;
     pieceColor = sf::Color(120, 20, 170, 100);
@@ -94,24 +96,26 @@ Piece::Piece() {
     blocks.at(2).y = 1;
     blocks.at(3).x = 0;
     blocks.at(3).y = 2;
-    origin.x = 1;
-    origin.y = 0;
+    origin.x = 0;
+    origin.y = 1;
     pieceColor = sf::Color::Cyan;
   }
 }
 
-bool Piece::canPieceMove(int board[][BOARDLENGTH_INBLOCKS], int chx, int chy) {
+bool Piece::canPieceMove(int board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS], int chx, int chy) {
   bool canMove = true;
-  for (int i = 0; i < 4; i++) {
-    // check left and right
-    if ((blocks.at(i).x + chx < 0)
-        || (blocks.at(i).x + chx > BOARDLENGTH_INBLOCKS)
-        || (board[static_cast<int>(blocks.at(i).x + chx)][static_cast<int>(blocks.at(i).y)] == 1))
+
+  // check if sides are out of bounds or occupied
+  for (int block = 0; block < 4; block++) {
+    if ((blocks.at(block).x + chx < 0)
+        || (blocks.at(block).x + chx > BOARDLENGTH_INBLOCKS)
+        || (board[static_cast<int>(blocks.at(block).x + chx)][static_cast<int>(blocks.at(block).y)] == 1))
       canMove = false;
-    // check down
-    if ((blocks.at(i).y + chy < 0)
-        || (blocks.at(i).y + chy > BOARDHEIGHT_INBLOCKS)
-        || (board[static_cast<int>(blocks.at(i).x)][static_cast<int>(blocks.at(i).y + chy)] == 1))
+
+    // check row below is in bounds and occupied
+    if ((blocks.at(block).y + chy < 0)
+        || (blocks.at(block).y + chy > BOARDHEIGHT_INBLOCKS)
+        || (board[static_cast<int>(blocks.at(block).x)][static_cast<int>(blocks.at(block).y + chy)] == 1))
       canMove = false;
   }
   return canMove;
@@ -121,4 +125,18 @@ void Piece::rotate() {
   if (PieceID == 5) return;
 }
 
-void Piece::drop() {}
+void Piece::drop(int board[][BOARDHEIGHT_INBLOCKS]) {
+  bool canMoveDown = true;
+  int lowestRow = 0;
+
+  while (canPieceMove(board, 0, 1) == true) {
+    for (int block = 0; block < 4; block++) {
+      blocks.at(block).y++;
+    }
+  }
+}
+
+void Piece::drawPiece(int board[][BOARDHEIGHT_INBLOCKS], sf::RectangleShape cell) {
+  
+
+}

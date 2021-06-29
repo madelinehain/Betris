@@ -1,5 +1,5 @@
-#ifndef PIECE_HPP_
-#define PIECE_HPP_
+#ifndef _Piece_HPP
+#define _Piece_HPP
 #include <array>
 #include <vector>
 #include <SFML/Graphics.hpp>
@@ -9,6 +9,7 @@ using std::vector;
 
 constexpr int BOARDLENGTH_INBLOCKS = 10;
 constexpr int BOARDHEIGHT_INBLOCKS = 20;
+constexpr float CELLSIZE = 40;
 
 class Piece {
  public:
@@ -18,8 +19,9 @@ class Piece {
   int PieceID, nextPieceID;
 
   Piece();
-  bool canPieceMove(int board[][BOARDLENGTH_INBLOCKS], int chx, int chy);
+  bool canPieceMove(int board[][BOARDHEIGHT_INBLOCKS], int chx, int chy);
   void rotate();
-  void drop();
+  void drop(int board[][BOARDHEIGHT_INBLOCKS]);
+  void drawPiece(int board[][BOARDHEIGHT_INBLOCKS], sf::RectangleShape cell);
 };
-#endif  // PIECE_HPP_
+#endif  // _Piece_HPP
