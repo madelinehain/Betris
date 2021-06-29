@@ -31,13 +31,13 @@ int main() {
     sf::RectangleShape cell(sf::Vector2f(CELLSIZE, CELLSIZE));
     Piece currentPiece, nextPiece;
 
-    t.loadFromFile("THISbackground.png");
-    titleLoad.loadFromFile("title.png");
+    t.loadFromFile("background.png");
+    titleLoad.loadFromFile("titleSmall.png");
     nextLoad.loadFromFile("next.png");
     scoreLoad.loadFromFile("score.png");
 
-    if (!t.loadFromFile("THISbackground.png")) return -1;
-    if (!titleLoad.loadFromFile("title.png")) return -1;
+    if (!t.loadFromFile("background.png")) return -1;
+    if (!titleLoad.loadFromFile("titleSmall.png")) return -1;
     if (!nextLoad.loadFromFile("next.png")) return -1;
     if (!scoreLoad.loadFromFile("score.png")) return -1;
 
