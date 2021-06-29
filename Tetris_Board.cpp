@@ -38,18 +38,15 @@ int main() {
   if (!font.loadFromFile("Resources/TetrisFont.ttf")) return -1;
 
   sf::Sprite background(t), title(titleLoad), next(nextLoad), score(scoreLoad);
-  sf::Text gameScore;
 
-  next.setOrigin(120, 0);
-  next.setPosition(560, 220);
-  title.setOrigin(140, 0);
-  title.setPosition(560, 20);
-  background.setOrigin(200, 0);
-  background.setPosition(200, 0);
-  score.setOrigin(140, 0);
-  score.setPosition(560, 460);
-  gameScore.setString(to_string(points));
+  background.setPosition(0, 0);
+  title.setPosition(420, 20);
+  next.setPosition(440, 220);
+  score.setPosition(420, 460);
+
+  sf::Text gameScore;
   sf::FloatRect scorebox = gameScore.getGlobalBounds();
+  gameScore.setString(to_string(points));
   gameScore.setCharacterSize(40);
   gameScore.setFillColor(sf::Color::White);
   gameScore.setOrigin(scorebox.width / 2.0, 0);
@@ -107,20 +104,19 @@ int main() {
             }
           }
           if (event.key.code == sf::Keyboard::Down) {
-            // to do: drop()
+            currentPiece.drop(board);
+            piecePlaced = true;
           }
         }
       }
 
       window.clear();
-      background.setPosition(0, 0);
-      title.setPosition(420, 20);
-      next.setPosition(440, 220);
-      score.setPosition(420, 460);
+
       window.draw(background);
       window.draw(title);
       window.draw(next);
       window.draw(score);
+
       window.display();
     }
   }
