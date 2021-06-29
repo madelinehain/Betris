@@ -46,7 +46,6 @@ int main() {
     while (window.isOpen()) {
         sf::Event event;
         while (true) {
-        sf::Event event;
         // check if game is over by checking top row
         for (int i = 0; i < BOARDLENGTH_INBLOCKS; i++) {
           if (board[i][BOARDHEIGHT_INBLOCKS] == 1) isGameOver = true;
@@ -56,6 +55,7 @@ int main() {
         points = 0;
         board[BOARDHEIGHT_INBLOCKS][BOARDLENGTH_INBLOCKS] = {0};
         isGameOver = false;
+        // maybe we do something about starting a new game here
         }
         while (window.pollEvent(event)) {
           // close window
@@ -70,7 +70,7 @@ int main() {
             // to do: rotate()
             }
 // I have to add in the Piece class for these to work
-            
+
             // // move piece left
             // if (event.key.code == sf::Keyboard::Left) {
             //   // check that coordinates are within the bounds of the board
