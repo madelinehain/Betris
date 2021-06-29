@@ -4,15 +4,16 @@
 #include <iostream>
 #include <chrono>
 #include <ctime>
+#include "Piece.hpp"
 using std::cout;
 using sf::Vector2;
 using std::vector;
 using std::array;
 
 const int BOARDLENGTH = 400;
-const int BOARDLENGTH_INBLOCKS = 10;
+// const int BOARDLENGTH_INBLOCKS = 10;
 const int BOARDHEIGHT = 800;
-const int BOARDHEIGHT_INBLOCKS = 20;
+// const int BOARDHEIGHT_INBLOCKS = 20;
 const int WINDOWHEIGHT = 1000;
 const float CELLSIZE = 40;
 
