@@ -99,6 +99,7 @@ Piece::Piece() {
     pieceColor = sf::Color::Cyan;
   }
 }
+
 bool Piece::canPieceMove(int board[][BOARDLENGTH_INBLOCKS], int chx, int chy) {
   bool canMove = true;
   for (int i = 0; i < 4; i++) {
