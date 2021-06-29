@@ -104,13 +104,13 @@ bool Piece::canPieceMove(int board[][BOARDLENGTH_INBLOCKS], int chx, int chy) {
   for (int i = 0; i < 4; i++) {
     // check left and right
     if ((blocks.at(i).x + chx < 0)
-      || (blocks.at(i).x + chx > BOARDLENGTH_INBLOCKS)
-      || (board[static_cast<int>(blocks.at(i).x + chx)][static_cast<int>(blocks.at(i).y)] == 1))
+        || (blocks.at(i).x + chx > BOARDLENGTH_INBLOCKS)
+        || (board[static_cast<int>(blocks.at(i).x + chx)][static_cast<int>(blocks.at(i).y)] == 1))
       canMove = false;
     // check down
     if ((blocks.at(i).y + chy < 0)
-      || (blocks.at(i).y + chy > BOARDHEIGHT_INBLOCKS)
-      || (board[static_cast<int>(blocks.at(i).x)][static_cast<int>(blocks.at(i).y + chy)] == 1))
+        || (blocks.at(i).y + chy > BOARDHEIGHT_INBLOCKS)
+        || (board[static_cast<int>(blocks.at(i).x)][static_cast<int>(blocks.at(i).y + chy)] == 1))
       canMove = false;
   }
   return canMove;

@@ -1,5 +1,5 @@
-#ifndef _Piece_HPP
-#define _Piece_HPP
+#ifndef PIECE_HPP_
+#define PIECE_HPP_
 #include <array>
 #include <vector>
 #include <SFML/Graphics.hpp>
@@ -22,4 +22,4 @@ class Piece {
   void rotate();
   void drop();
 };
-#endif  // _Piece_HPP
+#endif  // PIECE_HPP_
