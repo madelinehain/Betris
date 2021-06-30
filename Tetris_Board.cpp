@@ -15,6 +15,12 @@ using sf::Vector2;
 
 extern const float CELLSIZE;
 
+  double besttime() {
+    auto now = std::chrono::high_resolution_clock::now();
+    auto dur = now.time_since_epoch();
+    return dur.count() / 1'000'000'000.0;
+  }
+
 int main() {
   int points;
   int board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] {0};
@@ -46,16 +52,57 @@ int main() {
 
   sf::Text gameScore;
   sf::FloatRect scorebox = gameScore.getGlobalBounds();
-  gameScore.setString(to_string(points));
-  gameScore.setCharacterSize(40);
-  gameScore.setFillColor(sf::Color::White);
+  gameScore.setFont(font);
+  gameScore.setCharacterSize(45);
+  gameScore.setFillColor(sf::Color::Blue);
   gameScore.setOrigin(scorebox.width / 2.0, 0);
+  gameScore.setOutlineColor(sf::Color::White);
+  gameScore.setOutlineThickness(2);
   gameScore.setPosition(560, 460);
+
+  sf::Text gameLevel;
+  gameLevel.setFont(font);
+  gameLevel.setCharacterSize(45);
+  gameLevel.setFillColor(sf::Color::Red);
+  gameLevel.setOutlineColor(sf::Color::White);
+  gameLevel.setOutlineThickness(2);
+  gameLevel.setPosition(200, 0);
+
+  sf::RectangleShape testsquare(sf::Vector2f(40, 40));
+  testsquare.setFillColor(sf::Color::Red);
+  testsquare.setPosition(160, 0);
 
 
   while (window.isOpen()) {
+
+    //initialize the time
+    std::time_t initialtime = std::time(NULL);
+    std::tm now = *std::localtime(&initialtime);
+    double speed = 1.0;
+    int level = 0;
+
     sf::Event event;
+
     while (true) {
+
+
+        //Display score and time
+        std::time_t time = std::time(NULL);
+        std::tm now = *std::localtime(&time);
+        double accurate_time = besttime();
+        double differ = accurate_time - time;
+        int dispscore = time - initialtime;
+
+        //change speed
+        if ((differ < 0.25) && (differ > 0.20))
+          testsquare.move(0, 40 * speed);
+        if (dispscore % 60 == 0) speed *= 1.25;
+
+        gameScore.setString(to_string(dispscore));
+        level=dispscore/20;
+        gameLevel.setString(to_string(level));
+
+
       // check if game is over by checking top row
       for (int i = 0; i < BOARDLENGTH_INBLOCKS; i++) {
         if (board[i][BOARDHEIGHT_INBLOCKS] == 1) isGameOver = true;
@@ -70,15 +117,18 @@ int main() {
       // create a new piece
       if (piecePlaced == false) {
         Piece nextPiece();
-         Piece currentPiece;
+        Piece currentPiece;
         piecePlaced = false;
       }
+
       while (window.pollEvent(event)) {
         // close window
         if (event.type == sf::Event::Closed) {
           window.close();
           return 0;
         }
+
+
         // if a key is pressed
         if (event.type == sf::Event::KeyPressed) {
           // rotate piece
@@ -112,10 +162,16 @@ int main() {
 
       window.clear();
 
+      gameScore.setPosition(440, 525);
+      //testsquare.setPosition(160, 0);
+      gameLevel.setPosition(440, 595);
+
       window.draw(background);
       window.draw(title);
       window.draw(next);
       window.draw(score);
+      window.draw(gameScore);
+      window.draw(gameLevel);
 
       window.display();
     }
