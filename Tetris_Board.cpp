@@ -54,16 +54,25 @@ int main() {
   sf::FloatRect scorebox = gameScore.getGlobalBounds();
   gameScore.setFont(font);
   gameScore.setCharacterSize(45);
-  gameScore.setFillColor(sf::Color::Blue);
+  gameScore.setFillColor(sf::Color::Red);
   gameScore.setOrigin(scorebox.width / 2.0, 0);
   gameScore.setOutlineColor(sf::Color::White);
   gameScore.setOutlineThickness(2);
   gameScore.setPosition(560, 460);
 
+  sf::Text gameTime;
+  gameTime.setFont(font);
+  gameTime.setCharacterSize(45);
+  gameTime.setFillColor(sf::Color::Blue);
+  gameTime.setOrigin(scorebox.width / 2.0, 0);
+  gameTime.setOutlineColor(sf::Color::White);
+  gameTime.setOutlineThickness(2);
+  gameTime.setPosition(560, 460);
+
   sf::Text gameLevel;
   gameLevel.setFont(font);
   gameLevel.setCharacterSize(45);
-  gameLevel.setFillColor(sf::Color::Red);
+  gameLevel.setFillColor(sf::Color::Yellow);
   gameLevel.setOutlineColor(sf::Color::White);
   gameLevel.setOutlineThickness(2);
   gameLevel.setPosition(200, 0);
@@ -91,16 +100,21 @@ int main() {
         std::tm now = *std::localtime(&time);
         double accurate_time = besttime();
         double differ = accurate_time - time;
-        int dispscore = time - initialtime;
+        int nowtime = time - initialtime;
 
         //change speed
         if ((differ < 0.25) && (differ > 0.20))
-          testsquare.move(0, 40 * speed);
-        if (dispscore % 60 == 0) speed *= 1.25;
+          testsquare.move(0, 40*(1+level));
+        int dispscore;
+         if (nowtime>10)  dispscore = level*nowtime;
+         else dispscore = nowtime;
 
         gameScore.setString(to_string(dispscore));
-        level=dispscore/20;
+
+       level=nowtime/10;
+      
         gameLevel.setString(to_string(level));
+        gameTime.setString(to_string(nowtime));
 
 
       // check if game is over by checking top row
@@ -164,7 +178,8 @@ int main() {
 
       gameScore.setPosition(440, 525);
       //testsquare.setPosition(160, 0);
-      gameLevel.setPosition(440, 595);
+      gameLevel.setPosition(440, 620);
+      gameTime.setPosition(440, 720);
 
       window.draw(background);
       window.draw(title);
@@ -172,6 +187,8 @@ int main() {
       window.draw(score);
       window.draw(gameScore);
       window.draw(gameLevel);
+      window.draw(gameTime);
+      window.draw(testsquare);
 
       window.display();
     }
