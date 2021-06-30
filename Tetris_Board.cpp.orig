@@ -15,15 +15,16 @@ using sf::Vector2;
 
 extern const float CELLSIZE;
 
-  double besttime() {
-    auto now = std::chrono::high_resolution_clock::now();
-    auto dur = now.time_since_epoch();
-    return dur.count() / 1'000'000'000.0;
-  }
+double besttime() {
+  auto now = std::chrono::high_resolution_clock::now();
+  auto dur = now.time_since_epoch();
+  return dur.count() / 1'000'000'000.0;
+}
 
 int main() {
-  int points;
+  int points, nowtime, level;
   int board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] {0};
+  double accurate_time, differ, speed;
   bool isGameOver = false, canMove = true, piecePlaced = false;
 
   sf::RenderWindow window(sf::VideoMode(720, 800), "Tetris");
@@ -63,7 +64,6 @@ int main() {
   gameScore.setOutlineColor(sf::Color::White);
   gameScore.setOutlineThickness(2);
   gameScore.setPosition(440, 525);
-  gameScore.setString(to_string(points));
 
   sf::Text gameTime;
   gameTime.setFont(font);
@@ -80,7 +80,7 @@ int main() {
   gameLevel.setFillColor(sf::Color::Yellow);
   gameLevel.setOutlineColor(sf::Color::White);
   gameLevel.setOutlineThickness(2);
-  gameLevel.setPosition(440, 620;
+  gameLevel.setPosition(440, 620);
 
   sf::RectangleShape testsquare(sf::Vector2f(CELLSIZE, CELLSIZE));
   testsquare.setFillColor(sf::Color::Red);
@@ -89,37 +89,35 @@ int main() {
 
   while (window.isOpen()) {
 
-    //initialize the time
-    std::time_t initialtime = std::time(NULL);
+  //initialize the time
+  std::time_t initialtime = std::time(NULL);
     std::tm now = *std::localtime(&initialtime);
     double speed = 1.0;
     int level = 0;
 
     sf::Event event;
-
     while (true) {
 
 
-        //Display score and time
-        std::time_t time = std::time(NULL);
-        std::tm now = *std::localtime(&time);
-        double accurate_time = besttime();
-        double differ = accurate_time - time;
-        int dispscore;
-        int nowtime = time - initialtime;
+      //Display score and time
+      std::time_t time = std::time(NULL);
+      std::tm now = *std::localtime(&time);
+      accurate_time = besttime();
+      int differ = accurate_time - time;
+      nowtime = time - initialtime;
 
-        //change speed
-        if ((differ < 0.25) && (differ > 0.20))
-          testsquare.move(0, 40*(1+level));
-         if (nowtime>10)  dispscore = level*nowtime;
-         else dispscore = nowtime;
+      //change speed
+      if ((differ < 0.25) && (differ > 0.20))
+        testsquare.move(0, 40 * (1 + level));
+      if (nowtime > 10)  points = level * nowtime;
+      else points = nowtime;
 
-        gameScore.setString(to_string(dispscore));
+      gameScore.setString(to_string(points));
 
-       level = nowtime / 10;
-      
-        gameLevel.setString(to_string(level));
-        gameTime.setString(to_string(nowtime));
+      level = nowtime / 10;
+
+      gameLevel.setString(to_string(level));
+      gameTime.setString(to_string(nowtime));
 
 
       // check if game is over by checking top row
@@ -139,6 +137,11 @@ int main() {
         nextPiece = currentPiece.createNewPiece();
         piecePlaced = false;
       }
+
+      for (int block = 0; block < 4; block++) {
+        if ((differ < 0.25) && (differ > 0.20))
+          currentPiece.blocks.at(block).y += (1 + level);
+        }
 
       while (window.pollEvent(event)) {
         // close window
@@ -179,8 +182,7 @@ int main() {
       }
 
       window.clear();
-
-
+      gameScore.setString(to_string(points));
 
       window.draw(background);
       window.draw(title);
@@ -192,7 +194,7 @@ int main() {
       window.draw(testsquare);
       currentPiece.drawPiece(cell, &window);
       nextPiece.drawPiece(nextcell, &window);
-      
+
       window.display();
     }
   }

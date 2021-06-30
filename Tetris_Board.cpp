@@ -28,7 +28,7 @@ int main() {
   bool isGameOver = false, canMove = true, piecePlaced = false;
 
   sf::RenderWindow window(sf::VideoMode(720, 800), "Tetris");
-  window.setFramerateLimit(20);
+  window.setFramerateLimit(10);
   Piece currentPiece;
   Piece nextPiece = currentPiece.createNewPiece();
 
@@ -89,8 +89,8 @@ int main() {
 
   while (window.isOpen()) {
 
-  //initialize the time
-  std::time_t initialtime = std::time(NULL);
+    //initialize the time
+    std::time_t initialtime = std::time(NULL);
     std::tm now = *std::localtime(&initialtime);
     double speed = 1.0;
     int level = 0;
@@ -104,6 +104,7 @@ int main() {
       std::tm now = *std::localtime(&time);
       accurate_time = besttime();
       differ = accurate_time - time;
+      int dispscore;
       nowtime = time - initialtime;
 
       //change speed
@@ -120,6 +121,7 @@ int main() {
       gameTime.setString(to_string(nowtime));
 
 
+      // check if game is
       // check if game is over by checking top row
       for (int i = 0; i < BOARDLENGTH_INBLOCKS; i++) {
         if (board[i][BOARDHEIGHT_INBLOCKS] == 1) isGameOver = true;
@@ -136,7 +138,15 @@ int main() {
         currentPiece = nextPiece;
         nextPiece = currentPiece.createNewPiece();
         piecePlaced = false;
+        for (int block = 0; block < 4; block++)
+          currentPiece.blocks.at(block).x += 4;
       }
+
+      for (int block = 0; block < 4; block++) {
+        if ((differ < 0.25) && (differ > 0.15))
+          currentPiece.blocks.at(block).y += (1 + level);
+      }
+
 
       while (window.pollEvent(event)) {
         // close window
