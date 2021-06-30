@@ -15,12 +15,9 @@ using namespace std;
 
 
 
-const int boardX = 10;
-const int boardY = 20;
-const int shapeXY = 40;
-
-const int gameSpeed = 2;
-
+const int boardX = 20;
+const int boardY = 10;
+const int CELLSIZE = 40;
 
 
 
@@ -33,7 +30,7 @@ struct Block {
   
   // Block constructor
   Block(sf::Color color, bool visibility) {
-    block.setSize((sf::Vector2f(40, 40)));
+    block.setSize((sf::Vector2f(CELLSIZE, CELLSIZE)));
     block.setFillColor(color);
     block.setOutlineThickness(-2);
     block.setOutlineColor(sf::Color::White);
@@ -49,9 +46,8 @@ struct Block {
 // SHAPE CLASS DEFINITION
 struct Shape {
   vector<Block> shapes;
-  vector<int> row;
-  vector<int> col;
   vector<vector<int>> reference;
+  vector<int> row, col;
 
   sf::Color color;
   
@@ -71,7 +67,7 @@ struct Shape {
   };
   
   
-  // helper functions
+  // Helper functions
   void draw(sf::RenderWindow *);
   void rotate();
   void alignShape();
@@ -93,20 +89,19 @@ struct Board {
   vector<vector<Block>> board;
 
   int boardWeight;
-  vector<int> r;
-  vector<int> c;
+  vector<int> r, c;
   
   // Board initializer with invisible blocks
   Board() {
-    vector<vector<Block>> content(20, vector<Block>(10, Block(sf::Color::Transparent, false)));
+    vector<vector<Block>> content(BOARDX, vector<Block>(10, Block(sf::Color::Transparent, false)));
     board = content;
     boardWeight = 0;
 
-    for (int i = 0; i < 10; i++) r.push_back(i);
-    for (int i = 0; i < 20; i++) c.push_back(i);
+    for (int i = 0; i < boardY; i++) r.push_back(i);
+    for (int i = 0; i < BOARDX; i++) c.push_back(i);
   }
   
-  // helper functions
+  // Helper functions
   void draw(sf::RenderWindow *);
   int updateWeight();
   bool updatePosition(Shape *, int, int);
@@ -218,8 +213,8 @@ int main() {
 // BOARD CLASS FUNCTIONS -------------------------
 
 void Board::draw(sf::RenderWindow * window) {
-  for (int i = 0; i < 20; i++) {
-    for (int j = 0; j < 10; j++) {
+  for (int i = 0; i < BOARDX; i++) {
+    for (int j = 0; j < boardY; j++) {
       if (board.at(i).at(j).isVisible) {
         window -> draw(board.at(i).at(j).block);
       }
@@ -232,8 +227,8 @@ void Board::draw(sf::RenderWindow * window) {
 int Board::updateWeight() {
   int count = 0;
   
-  for (int i = 0; i < 20; i++) {
-    for (int j = 0; j < 10; j++) {
+  for (int i = 0; i < BOARDX; i++) {
+    for (int j = 0; j < boardY; j++) {
       if (board.at(i).at(j).isVisible) count++;
     }
   }
@@ -353,8 +348,8 @@ void Shape::alignShape() {
 // Draw a shape on the board
 void Shape::draw(sf::RenderWindow * window) {
   for (int i = 0; i < 4; i++) {
-    int xPos = col.at(i) * 40;
-    int yPos = row.at(i) * 40;
+    int xPos = col.at(i) * CELLSIZE;
+    int yPos = row.at(i) * CELLSIZE;
     
     shapes.at(i).block.setPosition(xPos, yPos);
   
