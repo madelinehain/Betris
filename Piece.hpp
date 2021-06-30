@@ -7,8 +7,8 @@
 using std::array;
 using std::vector;
 
-constexpr int BOARDLENGTH_INBLOCKS = 10;
-constexpr int BOARDHEIGHT_INBLOCKS = 20;
+constexpr int BOARDLENGTH_INBLOCKS = 9;
+constexpr int BOARDHEIGHT_INBLOCKS = 19;
 constexpr float CELLSIZE = 40;
 
 class Piece {
@@ -19,9 +19,11 @@ class Piece {
   int PieceID, nextPieceID;
 
   Piece();
+  Piece createNewPiece();
   bool canPieceMove(int board[][BOARDHEIGHT_INBLOCKS], int chx, int chy);
   void rotate();
   void drop(int board[][BOARDHEIGHT_INBLOCKS]);
-  void drawPiece(int board[][BOARDHEIGHT_INBLOCKS], sf::RectangleShape cell);
+  void drawPiece(sf::RectangleShape cell, sf::RenderWindow* window);
+  void drawNextPiece(sf::RectangleShape nextcell, sf::RenderWindow* window);
 };
 #endif  // _Piece_HPP

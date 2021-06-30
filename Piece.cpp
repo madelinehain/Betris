@@ -2,8 +2,7 @@
 
 // x = col y = row
 Piece::Piece() {
-  nextPieceID = rand() % 7;
-  PieceID = nextPieceID;
+  PieceID = rand() % 7;
   // I (straight)
   if (PieceID == 0) {
     blocks.at(0).x = 0;  // x o o o
@@ -84,7 +83,7 @@ Piece::Piece() {
     blocks.at(2).y = 0;
     blocks.at(3).x = 1;
     blocks.at(3).y = 1;
-    pieceColor = sf::Color(120, 20, 170, 100);
+    pieceColor = sf::Color(120, 20, 170, 255);
   }
   // T
   if (PieceID == 6) {
@@ -102,7 +101,12 @@ Piece::Piece() {
   }
 }
 
-bool Piece::canPieceMove(int board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS], int chx, int chy) {
+Piece Piece::createNewPiece() {
+  Piece newPiece;
+  return newPiece;
+}
+
+bool Piece::canPieceMove(int board[][BOARDHEIGHT_INBLOCKS], int chx, int chy) {
   bool canMove = true;
 
   // check if sides are out of bounds or occupied
@@ -127,7 +131,6 @@ void Piece::rotate() {
 
 void Piece::drop(int board[][BOARDHEIGHT_INBLOCKS]) {
   bool canMoveDown = true;
-  int lowestRow = 0;
 
   while (canPieceMove(board, 0, 1) == true) {
     for (int block = 0; block < 4; block++) {
@@ -136,7 +139,21 @@ void Piece::drop(int board[][BOARDHEIGHT_INBLOCKS]) {
   }
 }
 
-void Piece::drawPiece(int board[][BOARDHEIGHT_INBLOCKS], sf::RectangleShape cell) {
-  
-
+void Piece::drawPiece(sf::RectangleShape cell, sf::RenderWindow* window) {
+  cell.setFillColor(pieceColor);
+  for (int block = 0; block < 4; block++) {
+    cell.setPosition(blocks.at(block).x * CELLSIZE, blocks.at(block).y * CELLSIZE);
+    window->draw(cell);
+  }
 }
+
+void Piece::drawNextPiece(sf::RectangleShape nextcell, sf::RenderWindow* window) {
+  nextcell.setFillColor(pieceColor);
+  for (int block = 0; block < 4; block++) {
+    nextcell.setPosition(blocks.at(block).x * CELLSIZE + 560,
+      blocks.at(block).y * CELLSIZE + 600);
+    window->draw(nextcell);
+  }
+}
+
+// viod Piece::drawNewPiece()

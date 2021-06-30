@@ -15,20 +15,25 @@ using sf::Vector2;
 
 extern const float CELLSIZE;
 
-  double besttime() {
-    auto now = std::chrono::high_resolution_clock::now();
-    auto dur = now.time_since_epoch();
-    return dur.count() / 1'000'000'000.0;
-  }
+double besttime() {
+  auto now = std::chrono::high_resolution_clock::now();
+  auto dur = now.time_since_epoch();
+  return dur.count() / 1'000'000'000.0;
+}
 
 int main() {
   int points;
   int board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] {0};
   bool isGameOver = false, canMove = true, piecePlaced = false;
+
   sf::RenderWindow window(sf::VideoMode(720, 800), "Tetris");
   window.setFramerateLimit(20);
-  sf::RectangleShape cell(sf::Vector2f(CELLSIZE, CELLSIZE));  // 4 cells per block
   Piece currentPiece;
+  Piece nextPiece = currentPiece.createNewPiece();
+
+  // 4 cells per block
+  sf::RectangleShape cell(sf::Vector2f(CELLSIZE, CELLSIZE));
+  sf::RectangleShape nextcell(sf::Vector2f(CELLSIZE, CELLSIZE));
 
   sf::Font font;
   sf::Texture t, titleLoad, nextLoad, scoreLoad;
@@ -44,7 +49,6 @@ int main() {
   if (!font.loadFromFile("Resources/TetrisFont.ttf")) return -1;
 
   sf::Sprite background(t), title(titleLoad), next(nextLoad), score(scoreLoad);
-
   background.setPosition(0, 0);
   title.setPosition(420, 20);
   next.setPosition(440, 220);
@@ -58,7 +62,7 @@ int main() {
   gameScore.setOrigin(scorebox.width / 2.0, 0);
   gameScore.setOutlineColor(sf::Color::White);
   gameScore.setOutlineThickness(2);
-  gameScore.setPosition(560, 460);
+  gameScore.setPosition(440, 525);
 
   sf::Text gameTime;
   gameTime.setFont(font);
@@ -67,7 +71,7 @@ int main() {
   gameTime.setOrigin(scorebox.width / 2.0, 0);
   gameTime.setOutlineColor(sf::Color::White);
   gameTime.setOutlineThickness(2);
-  gameTime.setPosition(560, 460);
+  gameTime.setPosition(440, 720);
 
   sf::Text gameLevel;
   gameLevel.setFont(font);
@@ -75,17 +79,17 @@ int main() {
   gameLevel.setFillColor(sf::Color::Yellow);
   gameLevel.setOutlineColor(sf::Color::White);
   gameLevel.setOutlineThickness(2);
-  gameLevel.setPosition(200, 0);
+  gameLevel.setPosition(440, 620);
 
-  sf::RectangleShape testsquare(sf::Vector2f(40, 40));
+  sf::RectangleShape testsquare(sf::Vector2f(CELLSIZE, CELLSIZE));
   testsquare.setFillColor(sf::Color::Red);
   testsquare.setPosition(160, 0);
 
 
   while (window.isOpen()) {
 
-    //initialize the time
-    std::time_t initialtime = std::time(NULL);
+  //initialize the time
+  std::time_t initialtime = std::time(NULL);
     std::tm now = *std::localtime(&initialtime);
     double speed = 1.0;
     int level = 0;
@@ -95,26 +99,26 @@ int main() {
     while (true) {
 
 
-        //Display score and time
-        std::time_t time = std::time(NULL);
-        std::tm now = *std::localtime(&time);
-        double accurate_time = besttime();
-        double differ = accurate_time - time;
-        int nowtime = time - initialtime;
+      //Display score and time
+      std::time_t time = std::time(NULL);
+      std::tm now = *std::localtime(&time);
+      double accurate_time = besttime();
+      double differ = accurate_time - time;
+      int dispscore;
+      int nowtime = time - initialtime;
 
-        //change speed
-        if ((differ < 0.25) && (differ > 0.20))
-          testsquare.move(0, 40*(1+level));
-        int dispscore;
-         if (nowtime>10)  dispscore = level*nowtime;
-         else dispscore = nowtime;
+      //change speed
+      if ((differ < 0.25) && (differ > 0.20))
+        testsquare.move(0, 40 * (1 + level));
+      if (nowtime > 10)  dispscore = level * nowtime;
+      else dispscore = nowtime;
 
-        gameScore.setString(to_string(dispscore));
+      gameScore.setString(to_string(dispscore));
 
-       level=nowtime/10;
-      
-        gameLevel.setString(to_string(level));
-        gameTime.setString(to_string(nowtime));
+      level = nowtime / 10;
+
+      gameLevel.setString(to_string(level));
+      gameTime.setString(to_string(nowtime));
 
 
       // check if game is over by checking top row
@@ -129,9 +133,9 @@ int main() {
         // maybe we do something about starting a new game here
       }
       // create a new piece
-      if (piecePlaced == false) {
-        Piece nextPiece();
-        Piece currentPiece;
+      if (piecePlaced == true) {
+        currentPiece = nextPiece;
+        nextPiece = currentPiece.createNewPiece();
         piecePlaced = false;
       }
 
@@ -141,7 +145,6 @@ int main() {
           window.close();
           return 0;
         }
-
 
         // if a key is pressed
         if (event.type == sf::Event::KeyPressed) {
@@ -161,7 +164,7 @@ int main() {
           }
           // move piece right
           if (event.key.code == sf::Keyboard::Right) {
-            if (currentPiece.canPieceMove(board, 0, 1) == true) {
+            if (currentPiece.canPieceMove(board, 1, 0) == true) {
               for (int block = 0; block < 4; block++) {
                 currentPiece.blocks.at(block).x += 1;
               }
@@ -175,11 +178,7 @@ int main() {
       }
 
       window.clear();
-
-      gameScore.setPosition(440, 525);
-      //testsquare.setPosition(160, 0);
-      gameLevel.setPosition(440, 620);
-      gameTime.setPosition(440, 720);
+      gameScore.setString(to_string(points));
 
       window.draw(background);
       window.draw(title);
@@ -189,6 +188,8 @@ int main() {
       window.draw(gameLevel);
       window.draw(gameTime);
       window.draw(testsquare);
+      currentPiece.drawPiece(cell, &window);
+      nextPiece.drawPiece(nextcell, &window);
 
       window.display();
     }
