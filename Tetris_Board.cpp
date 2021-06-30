@@ -150,6 +150,13 @@ int main() {
   sf::Time refreshTime;
   sf::Clock refreshClock;  
 
+  sf::Text Score("999", font, 50);
+  Score.setPosition(450, 275);
+  int score=0;
+
+  sf::Text Level("999", font, 50);
+  Level.setPosition(450, 370);
+  int level=0;
   
   // Create a next piece
   Shape currentShape(sf::Color::Red, {0, 0, 0, 0}, {0, 1, 2, 3});
@@ -164,6 +171,7 @@ int main() {
     if (!activeShape) {
       currentShape = nextShape;
       Shape nextShape(sf::Color::Yellow, {0, 0, 0, 0}, {0, 1, 2, 3});
+      score+=4;
       activeShape = true;
     }
     
@@ -175,6 +183,14 @@ int main() {
     // Update the time
     int timeNum = gameClock.getElapsedTime().asSeconds();
     time.setString(to_string(timeNum));
+
+    // Get the current Level
+    int level=timeNum/20;
+    Level.setString(to_string(level));
+
+    // Get the current Score
+    Score.setString(to_string(score));
+
     
     refreshTime += refreshClock.restart();
     
@@ -205,7 +221,8 @@ int main() {
     nextShape.drawNext(&window);
 //    ghost.draw(&window);
     board.draw(&window);
-    
+    window.draw(Score);
+    window.draw(Level);
     window.display();
   }
 }
