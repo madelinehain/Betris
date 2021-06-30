@@ -156,7 +156,7 @@ int main() {
 
   sf::Text Level("999", font, 50);
   Level.setPosition(450, 370);
-  int level=0;
+  int level=1;
   
   // Create a next piece
   Shape currentShape(sf::Color::Red, {0, 0, 0, 0}, {0, 1, 2, 3});
@@ -185,10 +185,11 @@ int main() {
     time.setString(to_string(timeNum));
 
     // Get the current Level
-    int level=timeNum/20;
+    level=timeNum/20 +1;
     Level.setString(to_string(level));
 
     // Get the current Score
+    int scoredisp=score*(1+level);
     Score.setString(to_string(score));
 
     
