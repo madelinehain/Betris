@@ -1,205 +1,363 @@
-// Copyright 2021 Madeline Clare Hain maddiech@bu.edu
-// Copyright 2021 Mallory Gerosa gerosam@bu.edu
-// https://github.com/madelinehain/EC327_Team_10_Final_Project.git
+// Copyright 2021 Madeline Clare Hain   maddiech@bu.edu
+//                Ava Remler            aremler@bu.edu
+//                Mallory Gerosa        gerosam@bu.edu
+//                Abdulaziz AlMailam    almailam@bu.edu
 
-#include <chrono>
-#include <ctime>
-#include <iostream>
-#include "Piece.hpp"
-#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include <vector>
+#include <string>
+#include <iostream>
+#include <algorithm>
 
-using std::array;
-using std::cout;
-using std::to_string;
-using std::vector;
-using sf::Vector2;
 
-extern const float CELLSIZE;
+using namespace std;
 
-// calculate accurate time
-double besttime() {
-  auto now = std::chrono::high_resolution_clock::now();
-  auto dur = now.time_since_epoch();
-  return dur.count() / 1'000'000'000.0;
-}
+
+
+
+const int boardX = 10;
+const int boardY = 20;
+const int shapeXY = 40;
+
+const int gameSpeed = 3;
+
+
+
+
+
+
+// BLOCK CLASS DEFINITION
+struct Block {
+  sf::RectangleShape block;
+  bool isVisible;
+  
+  // Block constructor
+  Block(sf::Color color, bool visibility) {
+    block.setSize((sf::Vector2f(40, 40)));
+    block.setFillColor(color);
+    block.setOutlineThickness(-2);
+    block.setOutlineColor(sf::Color::White);
+    isVisible = visibility;
+  }
+};
+
+
+
+
+
+
+// SHAPE CLASS DEFINITION
+struct Shape {
+  vector<Block> shapes;
+  vector<int> row;
+  vector<int> col;
+  vector<vector<int>> reference;
+
+  sf::Color color;
+  
+  // Shape initializer based on color and row/col
+  Shape(sf::Color Color, vector<int> r, vector<int> c) {
+    row = r;
+    col = c;
+    color = Color;
+    
+    vector<vector<int>> reference (4, vector<int>(4, 0));
+    
+    for (int i = 0; i < 4; i++) {
+      Block newBlock(Color, true);
+      shapes.push_back(newBlock);
+      reference.at(r.at(i)).at(c.at(i)) = i;
+    }
+  };
+  
+  
+  // helper functions
+  void draw(sf::RenderWindow *);
+  void rotate();
+  void alignShape();
+};
+
+
+
+
+
+
+
+
+
+
+// BOARD CLASS DEFINITION
+struct Board {
+  vector<vector<Block>> board;
+
+  int boardWeight;
+  vector<int> r;
+  vector<int> c;
+  
+  // Board initializer with invisible blocks
+  Board() {
+    vector<vector<Block>> content(20, vector<Block>(10, Block(sf::Color::Transparent, false)));
+    board = content;
+    boardWeight = 0;
+
+    for (int i = 0; i < 10; i++) r.push_back(i);
+    for (int i = 0; i < 20; i++) c.push_back(i);
+  }
+  
+  // helper functions
+  void draw(sf::RenderWindow *);
+  int updateWeight();
+  bool updatePosition(Shape *, int, int);
+};
+
+
+
+
+
+
+
+
+// MAIN FUNCTION HEADERS
+void checkEvents(sf::RenderWindow *, sf::Event, Shape *, Board *);
+//Shape getGhost(Board, Shape);
+
+
+
+
+
+
 
 int main() {
-  int points, nowtime, level;
-  double accurate_time, differ, speed;
-  int board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] {0};
-  bool isGameOver = false, canMove = true, piecePlaced = false;
-
+  // Window settings
   sf::RenderWindow window(sf::VideoMode(720, 800), "Tetris");
-  window.setFramerateLimit(10);
-
-  Piece currentPiece;
-  Piece nextPiece = currentPiece.createNewPiece();
-  // blocks of current and next pieces
-  sf::RectangleShape cell(sf::Vector2f(CELLSIZE, CELLSIZE));
-  sf::RectangleShape nextCell(sf::Vector2f(CELLSIZE, CELLSIZE));
-
-  sf::Music bgmusic;
+  window.setFramerateLimit(5);
+  
+  // Setup board
+  Board board;
+  bool activeShape = true;
+  
+  // Load decorations/background
   sf::Font font;
-  sf::Texture t, titleLoad, nextLoad, scoreLoad;
-  // load files for textures, music, and fonts
-  t.loadFromFile("Resources/background.png");
-  titleLoad.loadFromFile("Resources/titleSmall.png");
-  nextLoad.loadFromFile("Resources/next.png");
-  scoreLoad.loadFromFile("Resources/score.png");
   font.loadFromFile("Resources/TetrisFont.ttf");
-  if (!t.loadFromFile("Resources/background.png")) return -1;
-  if (!titleLoad.loadFromFile("Resources/titleSmall.png")) return -1;
-  if (!nextLoad.loadFromFile("Resources/next.png")) return -1;
-  if (!scoreLoad.loadFromFile("Resources/score.png")) return -1;
-  if (!font.loadFromFile("Resources/TetrisFont.ttf")) return -1;
-
-  sf::Sprite background(t), titlebox(titleLoad), nextbox(nextLoad), scorebox(scoreLoad);
-  background.setPosition(0, 0);
-  titlebox.setPosition(420, 20);
-  nextbox.setPosition(440, 220);
-  scorebox.setPosition(420, 460);
-
-  sf::Text gameScore;
-  sf::FloatRect gameScoreBox = gameScore.getGlobalBounds();
-  gameScore.setFont(font);
-  gameScore.setCharacterSize(45);
-  gameScore.setFillColor(sf::Color::Red);
-  gameScore.setOrigin(gameScoreBox.width / 2.0, 0);
-  gameScore.setOutlineColor(sf::Color::White);
-  gameScore.setOutlineThickness(2);
-  gameScore.setPosition(440, 525);
-
-  sf::Text gameTime;
-  gameTime.setFont(font);
-  gameTime.setCharacterSize(45);
-  gameTime.setFillColor(sf::Color::Blue);
-  gameTime.setOrigin(gameScoreBox.width / 2.0, 0);
-  gameTime.setOutlineColor(sf::Color::White);
-  gameTime.setOutlineThickness(2);
-  gameTime.setPosition(440, 720);
-
-  sf::Text gameLevel;
-  gameLevel.setFont(font);
-  gameLevel.setCharacterSize(45);
-  gameLevel.setFillColor(sf::Color::Yellow);
-  gameLevel.setOutlineColor(sf::Color::White);
-  gameLevel.setOutlineThickness(2);
-  gameLevel.setPosition(440, 620);
-
-  sf::RectangleShape testsquare(sf::Vector2f(CELLSIZE, CELLSIZE));
-  testsquare.setFillColor(sf::Color::Red);
-  testsquare.setPosition(160, 0);
-
-
+  
+  sf::Texture t;
+  t.loadFromFile("Resources/background.png");
+  sf::Sprite background(t);
+  
+  // Keep track of game time
+  sf::Clock gameClock;
+  
+  // Create time, score, and level objects
+  sf::Text time("999", font, 50);
+  time.setPosition(450, 465);
+  
+  sf::Time refreshTime;
+  sf::Clock refreshClock;
+  
+  // Create a new piece
+  Shape currentShape(sf::Color::Red, {0, 0, 0, 0}, {0, 1, 2, 3});
+//  Shape ghost = getGhost(board, currentShape);
+  
+  // Active/live window
   while (window.isOpen()) {
-    // initialize the time
-    std::time_t initialtime = std::time(NULL);
-    std::tm now = *std::localtime(&initialtime);
-    speed = 1.0;
-    level = 0;
-
+     // Create a new piece
+    if (!activeShape) {
+      Shape newShape(sf::Color::Yellow, {0, 0, 0, 0}, {0, 1, 2, 3});
+      currentShape = newShape;
+      activeShape = true;
+    }
+    
+    // Checks all window events
     sf::Event event;
-    while (true) {
-      // calculate time
-      std::time_t time = std::time(NULL);
-      std::tm now = *std::localtime(&time);
-      accurate_time = besttime();
-      differ = accurate_time - time;
-      nowtime = time - initialtime;
-
-      // calculate score
-      if ((differ < 0.25) && (differ > 0.20))
-        testsquare.move(0, 40 * (1 + level));
-      if (nowtime > 10)  points = level * nowtime;
-      else 
-        points = nowtime;
-
-      level = nowtime / 10;
-      // update constantly
-      gameScore.setString(to_string(points));
-      gameLevel.setString(to_string(level));
-      gameTime.setString(to_string(nowtime));
-
-      // check if game is over by checking top row or if a piece has been placed
-      for (int i = 0; i < BOARDLENGTH_INBLOCKS; i++) {
-        if (board[i][BOARDHEIGHT_INBLOCKS] == 1) isGameOver = true;
-        if (currentPiece.canPieceMove(board, 0, 1) == false) piecePlaced = true;
-      }
-      // reset game
-      if (isGameOver == true) {
-        points = 0;
-        board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] = {0};
-        isGameOver = false;
-        // maybe we do something about starting a new game here
-      }
-      // current piece is now the next piece
-      if (piecePlaced == true) {
-        currentPiece = nextPiece;
-        nextPiece = currentPiece.createNewPiece();
-        piecePlaced = false;
-        for (int block = 0; block < 4; block++)
-          currentPiece.blocks.at(block).x += 4;
-      }
-      // not exactly sure what this does
-      for (int block = 0; block < 4; block++) {
-        if ((differ < 0.25) && (differ > 0.15))
-          currentPiece.blocks.at(block).y += (1 + level);
-      }
-
-      while (window.pollEvent(event)) {
-        // close window
-        if (event.type == sf::Event::Closed) {
-          window.close();
-          return 0;
+    checkEvents(&window, event, &currentShape, &board);
+    
+    
+    // Update the time
+    int timeNum = gameClock.getElapsedTime().asSeconds();
+    time.setString(to_string(timeNum));
+    
+    refreshTime += refreshClock.restart();
+    
+    
+    // Update piece position
+    if (refreshTime.asSeconds() >= gameSpeed) {
+      
+      if (!board.updatePosition(&currentShape, 1, 0)) {
+        
+        // copy blocks
+        for (int i = 0; i < 4; i++) {
+          int row = currentShape.row.at(i);
+          int col = currentShape.col.at(i);
+          
+          board.board.at(row).at(col) = currentShape.shapes.at(i);
         }
-
-        // if a key is pressed
-        if (event.type == sf::Event::KeyPressed) {
-          // rotate piece
-          if (event.key.code == sf::Keyboard::Up) {
-            // to do: rotate()
-          }
-          // move piece left
-          if (event.key.code == sf::Keyboard::Left) {
-            // check piece and board bounds collision
-            if (currentPiece.canPieceMove(board, -1, 0) == true) {
-              for (int block = 0; block < 4; block++) {
-                currentPiece.blocks.at(block).x -= 1;
-              }
-            }
-          }
-          // move piece right
-          if (event.key.code == sf::Keyboard::Right) {
-            // check piece and board bounds collision
-            if (currentPiece.canPieceMove(board, 1, 0) == true) {
-              for (int block = 0; block < 4; block++) {
-                currentPiece.blocks.at(block).x += 1;
-              }
-            }
-          }
-          // drop piece to the last possible row
-          if (event.key.code == sf::Keyboard::Down) {
-            currentPiece.drop(board);
-            piecePlaced = true;
-          }
-        }
+        
+        activeShape = false;
       }
-      window.clear();
+    }
+    
+    
+    // Draw all elements & display the window
+    window.clear();
 
-      window.draw(background);
-      window.draw(titlebox);
-      window.draw(nextbox);
-      window.draw(scorebox);
-      window.draw(gameScore);
-      window.draw(gameLevel);
-      window.draw(gameTime);
-      window.draw(testsquare);
-      currentPiece.drawPiece(cell, &window);
-      nextPiece.drawNextPiece(nextCell, &window);
+    window.draw(background);
+    window.draw(time);
+    currentShape.draw(&window);
+//    ghost.draw(&window);
+    board.draw(&window);
+    
+    window.display();
+  }
+}
 
-      window.display();
+
+
+
+
+
+// BOARD CLASS FUNCTIONS -------------------------
+
+void Board::draw(sf::RenderWindow * window) {
+  for (int i = 0; i < 20; i++) {
+    for (int j = 0; j < 10; j++) {
+      if (board.at(i).at(j).isVisible) {
+        window -> draw(board.at(i).at(j).block);
+      }
     }
   }
-  return 0;
+}
+
+
+
+int Board::updateWeight() {
+  int count = 0;
+  
+  for (int i = 0; i < 20; i++) {
+    for (int j = 0; j < 10; j++) {
+      if (board.at(i).at(j).isVisible) count++;
+    }
+  }
+  
+  boardWeight = count;
+  return count;
+}
+
+
+
+
+
+
+
+// Checks all game events
+void checkEvents(sf::RenderWindow * window, sf::Event event, Shape * s, Board * b) {
+  while (window -> pollEvent(event)) {
+    // Close window
+    if (event.type == sf::Event::Closed) window -> close();
+    
+    // Keyboard events
+    if (event.type == sf::Event::KeyPressed) {
+      if (event.key.code == sf::Keyboard::R) s -> rotate();
+      if (event.key.code == sf::Keyboard::Escape) window -> close();
+      if (event.key.code == sf::Keyboard::Right) b -> updatePosition(s, 0, 1);
+      if (event.key.code == sf::Keyboard::Left) b -> updatePosition(s, 0, -1);
+    }
+  }
+}
+
+
+
+
+
+
+
+bool Board::updatePosition(Shape * shape, int offsetR, int offsetC) {
+  // check if new position is valid
+  for (int i = 0; i < 4; i++) {
+    int checkR = (shape -> row.at(i)) + offsetR;
+    int checkC = (shape -> col.at(i)) + offsetC;
+    
+    // out of range
+    if ((checkC > 9) || (checkC < 0)) return false;
+    if (checkR > 19) return false;
+    
+    // occupied
+    if (board.at(checkR).at(checkC).isVisible) return false;
+  }
+  
+  for (int i = 0; i < 4; i++) {
+    int currentR = (shape -> row.at(i));
+    int currentC = (shape -> col.at(i));
+
+    (shape -> row.at(i)) = currentR + offsetR;
+    (shape -> col.at(i)) = currentC + offsetC;
+  }
+  
+  return true;
+}
+
+
+
+
+
+
+
+
+
+
+// SHAPE CLASS FUNCTIONS -------------------------
+
+void Shape::rotate() {
+  // Get transpose of tile
+  std::reverse(row.begin(), row.end());
+
+  std::swap(row, col);
+  
+  // Align the tile to the top-left
+  //alignShape();
+}
+
+  
+  
+void Shape::alignShape() {
+  // Push shape blocks upwards
+  while (all_of(reference.at(0).begin(), reference.at(0).end(), [] (int i) {return i == 0;})) {
+    std::rotate(reference.begin(), reference.begin() + 1, reference.end());
+  }
+
+  // Push shape blocks to the left
+  vector<int> column;
+  do {
+    column = vector<int> (4, 0);
+    for (int i = 0; i < 4; i++) column.at(i) = reference.at(i).at(0);
+
+    if (all_of(column.begin(), column.end(), [] (int i) {return i == 0;})) {
+      for (int i = 0; i < 4; i++) std::rotate(reference.at(i).begin(),
+                                              reference.at(i).begin() + 1,
+                                              reference.at(i).end());
+    }
+  } while (all_of(column.begin(), column.end(), [] (int i) {return i == 0;}));
+
+  
+  
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (reference.at(i).at(j) != '0') {
+        row.at(reference.at(i).at(j)) = i;
+        col.at(reference.at(i).at(j)) = j;
+      }
+    }
+  }
+}
+
+
+// Draw a shape on the board
+void Shape::draw(sf::RenderWindow * window) {
+  for (int i = 0; i < 4; i++) {
+    int xPos = col.at(i) * 40;
+    int yPos = row.at(i) * 40;
+    
+    shapes.at(i).block.setPosition(xPos, yPos);
+  
+    window -> draw(shapes.at(i).block);
+  }
 }
