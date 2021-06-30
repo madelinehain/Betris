@@ -44,7 +44,7 @@ Piece::Piece() {
     blocks.at(3).y = 2;
     origin.x = 0;
     origin.y = 1;
-    pieceColor = sf::Color::Blue;
+    pieceColor = sf::Color(215, 50, 235, 255);  // magenta
   }
   // L
   if (PieceID == 3) {
@@ -72,7 +72,7 @@ Piece::Piece() {
     blocks.at(3).y = 2;
     origin.x = 1;
     origin.y = 1;
-    pieceColor = sf::Color(23, 35, 200, 255);  // magenta
+    pieceColor = sf::Color(23, 35, 200, 255);  // blue
   }
   // O (square)
   if (PieceID == 5) {

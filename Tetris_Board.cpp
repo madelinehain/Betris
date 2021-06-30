@@ -65,7 +65,7 @@ int main() {
   gameScore.setFont(font);
   gameScore.setCharacterSize(45);
   gameScore.setFillColor(sf::Color::Red);
-  gameScore.setOrigin(scorebox.width / 2.0, 0);
+  gameScore.setOrigin(gameScoreBox.width / 2.0, 0);
   gameScore.setOutlineColor(sf::Color::White);
   gameScore.setOutlineThickness(2);
   gameScore.setPosition(440, 525);
@@ -74,7 +74,7 @@ int main() {
   gameTime.setFont(font);
   gameTime.setCharacterSize(45);
   gameTime.setFillColor(sf::Color::Blue);
-  gameTime.setOrigin(scorebox.width / 2.0, 0);
+  gameTime.setOrigin(gameScoreBox.width / 2.0, 0);
   gameTime.setOutlineColor(sf::Color::White);
   gameTime.setOutlineThickness(2);
   gameTime.setPosition(440, 720);
@@ -121,9 +121,10 @@ int main() {
       gameLevel.setString(to_string(level));
       gameTime.setString(to_string(nowtime));
 
-      // check if game is over by checking top row
+      // check if game is over by checking top row or if a piece has been placed
       for (int i = 0; i < BOARDLENGTH_INBLOCKS; i++) {
         if (board[i][BOARDHEIGHT_INBLOCKS] == 1) isGameOver = true;
+        if (currentPiece.canPieceMove(board, 0, 1) == false) piecePlaced = true;
       }
       // reset game
       if (isGameOver == true) {
@@ -195,7 +196,7 @@ int main() {
       window.draw(gameTime);
       window.draw(testsquare);
       currentPiece.drawPiece(cell, &window);
-      nextPiece.drawPiece(nextCell, &window);
+      nextPiece.drawNextPiece(nextCell, &window);
 
       window.display();
     }
