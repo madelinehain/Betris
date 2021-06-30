@@ -22,8 +22,9 @@ double besttime() {
 }
 
 int main() {
-  int points;
+  int points, nowtime, level;
   int board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] {0};
+  double accurate_time, differ, speed;
   bool isGameOver = false, canMove = true, piecePlaced = false;
 
   sf::RenderWindow window(sf::VideoMode(720, 800), "Tetris");
@@ -95,17 +96,16 @@ int main() {
     int level = 0;
 
     sf::Event event;
-
     while (true) {
 
 
       //Display score and time
       std::time_t time = std::time(NULL);
       std::tm now = *std::localtime(&time);
-      double accurate_time = besttime();
-      double differ = accurate_time - time;
-      int dispscore;
-      int nowtime = time - initialtime;
+      accurate_time = besttime();
+      differ = accurate_time - time;
+      dispscore;
+      nowtime = time - initialtime;
 
       //change speed
       if ((differ < 0.25) && (differ > 0.20))

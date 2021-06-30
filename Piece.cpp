@@ -140,20 +140,20 @@ void Piece::drop(int board[][BOARDHEIGHT_INBLOCKS]) {
 }
 
 void Piece::drawPiece(sf::RectangleShape cell, sf::RenderWindow* window) {
+  // origcoordinates = cell.getPosition();
   cell.setFillColor(pieceColor);
+
   for (int block = 0; block < 4; block++) {
-    cell.setPosition(blocks.at(block).x * CELLSIZE, blocks.at(block).y * CELLSIZE);
+    cell.setPosition(blocks.at(block).x * CELLSIZE, blocks.at(block).y * CELLSIZE );
     window->draw(cell);
   }
 }
 
 void Piece::drawNextPiece(sf::RectangleShape nextcell, sf::RenderWindow* window) {
   nextcell.setFillColor(pieceColor);
+
   for (int block = 0; block < 4; block++) {
-    nextcell.setPosition(blocks.at(block).x * CELLSIZE + 560,
-      blocks.at(block).y * CELLSIZE + 600);
+    nextcell.setPosition(blocks.at(block).x * CELLSIZE + 520, blocks.at(block).y * CELLSIZE + 280);
     window->draw(nextcell);
   }
 }
-
-// viod Piece::drawNewPiece()
