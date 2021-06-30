@@ -15,9 +15,9 @@ using namespace std;
 
 
 
-const int boardX = 20;
-const int boardY = 10;
-const int CELLSIZE = 40;
+const int BOARDX = 20;
+const int BOARDY = 10;
+extern const int CELLSIZE = 40;
 
 
 
@@ -145,8 +145,8 @@ int main() {
   sf::Sprite gameOverScreen(over);
   
   sf::Texture pau;
-  p.loadFromFile("Resources/Pause.png");
-  sf::Sprite pauseScreen(p);
+  pau.loadFromFile("Resources/Pause.png");
+  sf::Sprite pauseScreen(pau);
   
   sf::Texture start;
   start.loadFromFile("Resources/Start");

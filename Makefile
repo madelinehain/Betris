@@ -9,6 +9,5 @@
 # make uses the modification dates to determine
 # if the programs need to be re-built
 
-all: board
 tetris: Tetris_Board.cpp
-	g++ -g Piece.cpp Tetris_Board.cpp -o tetris -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+	g++ -g Tetris_Board.cpp -o tetris -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
