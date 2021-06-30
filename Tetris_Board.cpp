@@ -9,6 +9,7 @@
 #include <iostream>
 #include <algorithm>
 
+
 using namespace std;
 
 
@@ -16,22 +17,23 @@ using namespace std;
 
 const int boardX = 10;
 const int boardY = 20;
-const int CELLSIZE = 40;
-const int GAMESPEED = 3;
+const int shapeXY = 40;
+
+const int gameSpeed = 2;
 
 
 
 
 
 
-// BLOCK STRUCT DEFINITION
+// BLOCK CLASS DEFINITION
 struct Block {
   sf::RectangleShape block;
   bool isVisible;
   
   // Block constructor
   Block(sf::Color color, bool visibility) {
-    block.setSize((sf::Vector2f(CELLSIZE, CELLSIZE)));
+    block.setSize((sf::Vector2f(40, 40)));
     block.setFillColor(color);
     block.setOutlineThickness(-2);
     block.setOutlineColor(sf::Color::White);
@@ -44,7 +46,7 @@ struct Block {
 
 
 
-// SHAPE STRUCT DEFINITION
+// SHAPE CLASS DEFINITION
 struct Shape {
   vector<Block> shapes;
   vector<int> row;
@@ -53,25 +55,24 @@ struct Shape {
 
   sf::Color color;
   
-  // Shape constuctor with color and row/col
+  // Shape initializer based on color and row/col
   Shape(sf::Color Color, vector<int> r, vector<int> c) {
+    color = Color;
     row = r;
     col = c;
-    color = Color;
     
     vector<vector<int>> reference (4, vector<int>(4, 0));
     
     for (int i = 0; i < 4; i++) {
       Block newBlock(Color, true);
       shapes.push_back(newBlock);
-      reference.at(r.at(i)).at(c.at(i)) = i;
+      reference.at(r.at(i)).at(c.at(i)) = i + 1;
     }
   };
   
   
-  // Helper functions
+  // helper functions
   void draw(sf::RenderWindow *);
-  void drawNext(sf::RenderWindow *);
   void rotate();
   void alignShape();
 };
@@ -85,14 +86,17 @@ struct Shape {
 
 
 
-// BOARD STRUCT DEFINITION
+
+
+// BOARD CLASS DEFINITION
 struct Board {
   vector<vector<Block>> board;
+
   int boardWeight;
   vector<int> r;
   vector<int> c;
   
-  // Board constructor with invisible blocks
+  // Board initializer with invisible blocks
   Board() {
     vector<vector<Block>> content(20, vector<Block>(10, Block(sf::Color::Transparent, false)));
     board = content;
@@ -102,11 +106,10 @@ struct Board {
     for (int i = 0; i < 20; i++) c.push_back(i);
   }
   
-  // Helper functions
+  // helper functions
   void draw(sf::RenderWindow *);
   int updateWeight();
   bool updatePosition(Shape *, int, int);
-  void drawNext(Shape *, int, int);
 };
 
 
@@ -116,11 +119,9 @@ struct Board {
 
 
 
-// MAIN FUNCTION HEADER
+// MAIN FUNCTION HEADERS
 void checkEvents(sf::RenderWindow *, sf::Event, Shape *, Board *);
-//Shape getGhost(Board, Shape);
-
-
+Shape getCombination(int);
 
 
 
@@ -135,43 +136,33 @@ int main() {
   Board board;
   bool activeShape = true;
   
-  // Load fonts and textures for background and game data
+  // Load decorations/background
   sf::Font font;
   font.loadFromFile("Resources/TetrisFont.ttf");
   
   sf::Texture t;
   t.loadFromFile("Resources/background.png");
   sf::Sprite background(t);
-    
-  // Keep track of game time, display time, score, and level
+  
+  // Keep track of game time
   sf::Clock gameClock;
+  
+  // Create time, score, and level objects
   sf::Text time("999", font, 50);
   time.setPosition(450, 465);
-  sf::Time refreshTime;
-  sf::Clock refreshClock;  
-
-  sf::Text Score("999", font, 50);
-  Score.setPosition(450, 275);
-  int score=0;
-
-  sf::Text Level("999", font, 50);
-  Level.setPosition(450, 370);
-  int level=1;
   
-  // Create a next piece
-  Shape currentShape(sf::Color::Red, {0, 0, 0, 0}, {0, 1, 2, 3});
-  Shape nextShape(sf::Color::Yellow, {0, 0, 0, 0}, {0, 1, 2, 3});
-  board.updatePosition(&nextShape, 12, 10);
-
+  sf::Time refreshTime;
+  sf::Clock refreshClock;
+  
+  // Create a new piece
+  Shape currentShape = getCombination(rand() % 6);
 //  Shape ghost = getGhost(board, currentShape);
   
   // Active/live window
   while (window.isOpen()) {
-     // Create a new piece after previus piece is placed
+     // Create a new piece
     if (!activeShape) {
-      currentShape = nextShape;
-      Shape nextShape(sf::Color::Yellow, {0, 0, 0, 0}, {0, 1, 2, 3});
-      score+=4;
+      currentShape = getCombination(rand() % 6);
       activeShape = true;
     }
     
@@ -183,31 +174,23 @@ int main() {
     // Update the time
     int timeNum = gameClock.getElapsedTime().asSeconds();
     time.setString(to_string(timeNum));
-
-    // Get the current Level
-    level=timeNum/20 +1;
-    Level.setString(to_string(level));
-
-    // Get the current Score
-    int scoredisp=score*(1+level);
-    Score.setString(to_string(score));
-
     
     refreshTime += refreshClock.restart();
     
     
     // Update piece position
-    if (refreshTime.asSeconds() >= GAMESPEED) {
+    if (refreshTime.asSeconds() >= gameSpeed) {
       
       if (!board.updatePosition(&currentShape, 1, 0)) {
         
-        // Copy blocks
+        // copy blocks
         for (int i = 0; i < 4; i++) {
           int row = currentShape.row.at(i);
           int col = currentShape.col.at(i);
           
           board.board.at(row).at(col) = currentShape.shapes.at(i);
         }
+        
         activeShape = false;
       }
     }
@@ -219,11 +202,9 @@ int main() {
     window.draw(background);
     window.draw(time);
     currentShape.draw(&window);
-    nextShape.drawNext(&window);
 //    ghost.draw(&window);
     board.draw(&window);
-    window.draw(Score);
-    window.draw(Level);
+    
     window.display();
   }
 }
@@ -235,7 +216,6 @@ int main() {
 
 // BOARD CLASS FUNCTIONS -------------------------
 
-// Draw visible blocks on board
 void Board::draw(sf::RenderWindow * window) {
   for (int i = 0; i < 20; i++) {
     for (int j = 0; j < 10; j++) {
@@ -247,7 +227,7 @@ void Board::draw(sf::RenderWindow * window) {
 }
 
 
-// Get number of blocks
+
 int Board::updateWeight() {
   int count = 0;
   
@@ -288,21 +268,21 @@ void checkEvents(sf::RenderWindow * window, sf::Event event, Shape * s, Board * 
 
 
 
-// change position of shape on the board
+
 bool Board::updatePosition(Shape * shape, int offsetR, int offsetC) {
   // check if new position is valid
   for (int i = 0; i < 4; i++) {
     int checkR = (shape -> row.at(i)) + offsetR;
     int checkC = (shape -> col.at(i)) + offsetC;
     
-    // Out of board bounds
+    // out of range
     if ((checkC > 9) || (checkC < 0)) return false;
     if (checkR > 19) return false;
     
-    // Board space is occupied
+    // occupied
     if (board.at(checkR).at(checkC).isVisible) return false;
   }
-  // Display 4 blocks of shape
+  
   for (int i = 0; i < 4; i++) {
     int currentR = (shape -> row.at(i));
     int currentC = (shape -> col.at(i));
@@ -323,9 +303,6 @@ bool Board::updatePosition(Shape * shape, int offsetR, int offsetC) {
 
 
 
-
-
-
 // SHAPE CLASS FUNCTIONS -------------------------
 
 void Shape::rotate() {
@@ -335,11 +312,11 @@ void Shape::rotate() {
   std::swap(row, col);
   
   // Align the tile to the top-left
-  // alignShape();
+  //alignShape();
 }
 
   
-// Optimize shape position
+  
 void Shape::alignShape() {
   // Push shape blocks upwards
   while (all_of(reference.at(0).begin(), reference.at(0).end(), [] (int i) {return i == 0;})) {
@@ -360,7 +337,7 @@ void Shape::alignShape() {
   } while (all_of(column.begin(), column.end(), [] (int i) {return i == 0;}));
 
   
-  // Set positions on board
+  
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
       if (reference.at(i).at(j) != '0') {
@@ -375,8 +352,8 @@ void Shape::alignShape() {
 // Draw a shape on the board
 void Shape::draw(sf::RenderWindow * window) {
   for (int i = 0; i < 4; i++) {
-    int xPos = col.at(i) * CELLSIZE;
-    int yPos = row.at(i) * CELLSIZE;
+    int xPos = col.at(i) * 40;
+    int yPos = row.at(i) * 40;
     
     shapes.at(i).block.setPosition(xPos, yPos);
   
@@ -385,13 +362,61 @@ void Shape::draw(sf::RenderWindow * window) {
 }
 
 
-void Shape::drawNext(sf::RenderWindow * window) {
-  for (int i = 0; i < 4; i++) {
-    int xPos = (col.at(i) * CELLSIZE) + 480;
-    int yPos = (row.at(i) * CELLSIZE) + 675;
-    
-    shapes.at(i).block.setPosition(xPos, yPos);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Shape getCombination(int ShapeID) {
+  vector<int> row;
+  vector<int> col;
+  sf::Color shapeColor;
   
-    window -> draw(shapes.at(i).block);
+  if (ShapeID == 0) {
+    row = {0, 0, 0, 0};
+    col = {0, 1, 2, 3};
+    shapeColor = sf::Color(50, 250, 0, 255);  // green
+    
+  } else if (ShapeID == 1) { // Z
+    row = {0, 0, 1, 1};
+    col = {0, 1, 1, 2};
+    shapeColor = sf::Color(230, 0, 0, 255);  // red
+    
+  } else if (ShapeID == 2) { // S (reverse Z)
+    row = {1, 0, 1, 0};
+    col = {0, 1, 1, 2};
+    shapeColor = sf::Color(215, 50, 235, 255);  // magenta
+    
+  } else if (ShapeID == 3) { // L
+    row = {0, 0, 0, 1};
+    col = {0, 1, 2, 2};
+    shapeColor = sf::Color(255, 235, 20, 255);  // yellow
+    
+  } else if (ShapeID == 4) { // J (reverse L)
+    row = {1, 1, 0, 1};
+    col = {0, 1, 2, 2};
+    shapeColor = sf::Color(23, 35, 200, 255);  // blue
+    
+  } else if (ShapeID == 5) { // O (square)
+    row = {0, 0, 1, 1};
+    col = {0, 1, 0, 1};
+    shapeColor = sf::Color(255, 135, 0, 255);  // orange
+    
+  } else if (ShapeID == 6) {
+    row = {0, 0, 1, 0};
+    col = {0, 1, 1, 2};
+    shapeColor = sf::Color(5, 245, 245, 255);  // cyan
   }
+  
+  return Shape(shapeColor, row, col);
 }
