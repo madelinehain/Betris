@@ -9,7 +9,6 @@
 #include <iostream>
 #include <algorithm>
 
-
 using namespace std;
 
 
@@ -17,8 +16,8 @@ using namespace std;
 
 const int boardX = 10;
 const int boardY = 20;
-const int shapeXY = 40;
-const int gameSpeed = 3;
+const int CELLSIZE = 40;
+const int GAMESPEED = 3;
 
 
 
@@ -32,7 +31,7 @@ struct Block {
   
   // Block constructor
   Block(sf::Color color, bool visibility) {
-    block.setSize((sf::Vector2f(40, 40)));
+    block.setSize((sf::Vector2f(CELLSIZE, CELLSIZE)));
     block.setFillColor(color);
     block.setOutlineThickness(-2);
     block.setOutlineColor(sf::Color::White);
@@ -45,7 +44,7 @@ struct Block {
 
 
 
-// SHAPE CLASS DEFINITION
+// SHAPE STRUCT DEFINITION
 struct Shape {
   vector<Block> shapes;
   vector<int> row;
@@ -72,6 +71,7 @@ struct Shape {
   
   // Helper functions
   void draw(sf::RenderWindow *);
+  void drawNext(sf::RenderWindow *);
   void rotate();
   void alignShape();
 };
@@ -106,6 +106,7 @@ struct Board {
   void draw(sf::RenderWindow *);
   int updateWeight();
   bool updatePosition(Shape *, int, int);
+  void drawNext(Shape *, int, int);
 };
 
 
@@ -150,16 +151,19 @@ int main() {
   sf::Clock refreshClock;  
 
   
-  // Create a new piece
+  // Create a next piece
   Shape currentShape(sf::Color::Red, {0, 0, 0, 0}, {0, 1, 2, 3});
+  Shape nextShape(sf::Color::Yellow, {0, 0, 0, 0}, {0, 1, 2, 3});
+  board.updatePosition(&nextShape, 12, 10);
+
 //  Shape ghost = getGhost(board, currentShape);
   
   // Active/live window
   while (window.isOpen()) {
      // Create a new piece after previus piece is placed
     if (!activeShape) {
-      Shape newShape(sf::Color::Yellow, {0, 0, 0, 0}, {0, 1, 2, 3});
-      currentShape = newShape;
+      currentShape = nextShape;
+      Shape nextShape(sf::Color::Yellow, {0, 0, 0, 0}, {0, 1, 2, 3});
       activeShape = true;
     }
     
@@ -176,7 +180,7 @@ int main() {
     
     
     // Update piece position
-    if (refreshTime.asSeconds() >= gameSpeed) {
+    if (refreshTime.asSeconds() >= GAMESPEED) {
       
       if (!board.updatePosition(&currentShape, 1, 0)) {
         
@@ -198,6 +202,7 @@ int main() {
     window.draw(background);
     window.draw(time);
     currentShape.draw(&window);
+    nextShape.drawNext(&window);
 //    ghost.draw(&window);
     board.draw(&window);
     
@@ -300,6 +305,9 @@ bool Board::updatePosition(Shape * shape, int offsetR, int offsetC) {
 
 
 
+
+
+
 // SHAPE CLASS FUNCTIONS -------------------------
 
 void Shape::rotate() {
@@ -309,7 +317,7 @@ void Shape::rotate() {
   std::swap(row, col);
   
   // Align the tile to the top-left
-  //alignShape();
+  // alignShape();
 }
 
   
@@ -349,8 +357,20 @@ void Shape::alignShape() {
 // Draw a shape on the board
 void Shape::draw(sf::RenderWindow * window) {
   for (int i = 0; i < 4; i++) {
-    int xPos = col.at(i) * 40;
-    int yPos = row.at(i) * 40;
+    int xPos = col.at(i) * CELLSIZE;
+    int yPos = row.at(i) * CELLSIZE;
+    
+    shapes.at(i).block.setPosition(xPos, yPos);
+  
+    window -> draw(shapes.at(i).block);
+  }
+}
+
+
+void Shape::drawNext(sf::RenderWindow * window) {
+  for (int i = 0; i < 4; i++) {
+    int xPos = (col.at(i) * CELLSIZE) + 480;
+    int yPos = (row.at(i) * CELLSIZE) + 675;
     
     shapes.at(i).block.setPosition(xPos, yPos);
   
