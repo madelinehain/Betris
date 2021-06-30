@@ -1,10 +1,12 @@
 // Copyright 2021 Madeline Clare Hain maddiech@bu.edu
 // Copyright 2021 Mallory Gerosa gerosam@bu.edu
 // https://github.com/madelinehain/EC327_Team_10_Final_Project.git
+
 #include <chrono>
 #include <ctime>
 #include <iostream>
 #include "Piece.hpp"
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 
 using std::array;
@@ -15,6 +17,7 @@ using sf::Vector2;
 
 extern const float CELLSIZE;
 
+// calculate accurate time
 double besttime() {
   auto now = std::chrono::high_resolution_clock::now();
   auto dur = now.time_since_epoch();
@@ -23,21 +26,23 @@ double besttime() {
 
 int main() {
   int points, nowtime, level;
-  int board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] {0};
   double accurate_time, differ, speed;
+  int board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] {0};
   bool isGameOver = false, canMove = true, piecePlaced = false;
 
   sf::RenderWindow window(sf::VideoMode(720, 800), "Tetris");
   window.setFramerateLimit(10);
+
   Piece currentPiece;
   Piece nextPiece = currentPiece.createNewPiece();
-
-  // 4 cells per block
+  // blocks of current and next pieces
   sf::RectangleShape cell(sf::Vector2f(CELLSIZE, CELLSIZE));
-  sf::RectangleShape nextcell(sf::Vector2f(CELLSIZE, CELLSIZE));
+  sf::RectangleShape nextCell(sf::Vector2f(CELLSIZE, CELLSIZE));
 
+  sf::Music bgmusic;
   sf::Font font;
   sf::Texture t, titleLoad, nextLoad, scoreLoad;
+  // load files for textures, music, and fonts
   t.loadFromFile("Resources/background.png");
   titleLoad.loadFromFile("Resources/titleSmall.png");
   nextLoad.loadFromFile("Resources/next.png");
@@ -49,14 +54,14 @@ int main() {
   if (!scoreLoad.loadFromFile("Resources/score.png")) return -1;
   if (!font.loadFromFile("Resources/TetrisFont.ttf")) return -1;
 
-  sf::Sprite background(t), title(titleLoad), next(nextLoad), score(scoreLoad);
+  sf::Sprite background(t), titlebox(titleLoad), nextbox(nextLoad), scorebox(scoreLoad);
   background.setPosition(0, 0);
-  title.setPosition(420, 20);
-  next.setPosition(440, 220);
-  score.setPosition(420, 460);
+  titlebox.setPosition(420, 20);
+  nextbox.setPosition(440, 220);
+  scorebox.setPosition(420, 460);
 
   sf::Text gameScore;
-  sf::FloatRect scorebox = gameScore.getGlobalBounds();
+  sf::FloatRect gameScoreBox = gameScore.getGlobalBounds();
   gameScore.setFont(font);
   gameScore.setCharacterSize(45);
   gameScore.setFillColor(sf::Color::Red);
@@ -88,52 +93,46 @@ int main() {
 
 
   while (window.isOpen()) {
-
-    //initialize the time
+    // initialize the time
     std::time_t initialtime = std::time(NULL);
     std::tm now = *std::localtime(&initialtime);
-    double speed = 1.0;
-    int level = 0;
+    speed = 1.0;
+    level = 0;
 
     sf::Event event;
     while (true) {
-
-
-      //Display score and time
+      // calculate time
       std::time_t time = std::time(NULL);
       std::tm now = *std::localtime(&time);
       accurate_time = besttime();
       differ = accurate_time - time;
-      int dispscore;
       nowtime = time - initialtime;
 
-      //change speed
+      // calculate score
       if ((differ < 0.25) && (differ > 0.20))
         testsquare.move(0, 40 * (1 + level));
       if (nowtime > 10)  points = level * nowtime;
-      else points = nowtime;
-
-      gameScore.setString(to_string(points));
+      else 
+        points = nowtime;
 
       level = nowtime / 10;
-
+      // update constantly
+      gameScore.setString(to_string(points));
       gameLevel.setString(to_string(level));
       gameTime.setString(to_string(nowtime));
 
-
-      // check if game is
       // check if game is over by checking top row
       for (int i = 0; i < BOARDLENGTH_INBLOCKS; i++) {
         if (board[i][BOARDHEIGHT_INBLOCKS] == 1) isGameOver = true;
       }
-      // reset board
+      // reset game
       if (isGameOver == true) {
         points = 0;
         board[BOARDLENGTH_INBLOCKS][BOARDHEIGHT_INBLOCKS] = {0};
         isGameOver = false;
         // maybe we do something about starting a new game here
       }
-      // create a new piece
+      // current piece is now the next piece
       if (piecePlaced == true) {
         currentPiece = nextPiece;
         nextPiece = currentPiece.createNewPiece();
@@ -141,12 +140,11 @@ int main() {
         for (int block = 0; block < 4; block++)
           currentPiece.blocks.at(block).x += 4;
       }
-
+      // not exactly sure what this does
       for (int block = 0; block < 4; block++) {
         if ((differ < 0.25) && (differ > 0.15))
           currentPiece.blocks.at(block).y += (1 + level);
       }
-
 
       while (window.pollEvent(event)) {
         // close window
@@ -163,8 +161,7 @@ int main() {
           }
           // move piece left
           if (event.key.code == sf::Keyboard::Left) {
-            // check that coordinates are within the bounds of the board
-            // and that the space is available
+            // check piece and board bounds collision
             if (currentPiece.canPieceMove(board, -1, 0) == true) {
               for (int block = 0; block < 4; block++) {
                 currentPiece.blocks.at(block).x -= 1;
@@ -173,32 +170,32 @@ int main() {
           }
           // move piece right
           if (event.key.code == sf::Keyboard::Right) {
+            // check piece and board bounds collision
             if (currentPiece.canPieceMove(board, 1, 0) == true) {
               for (int block = 0; block < 4; block++) {
                 currentPiece.blocks.at(block).x += 1;
               }
             }
           }
+          // drop piece to the last possible row
           if (event.key.code == sf::Keyboard::Down) {
             currentPiece.drop(board);
             piecePlaced = true;
           }
         }
       }
-
       window.clear();
-      gameScore.setString(to_string(points));
 
       window.draw(background);
-      window.draw(title);
-      window.draw(next);
-      window.draw(score);
+      window.draw(titlebox);
+      window.draw(nextbox);
+      window.draw(scorebox);
       window.draw(gameScore);
       window.draw(gameLevel);
       window.draw(gameTime);
       window.draw(testsquare);
       currentPiece.drawPiece(cell, &window);
-      nextPiece.drawPiece(nextcell, &window);
+      nextPiece.drawPiece(nextCell, &window);
 
       window.display();
     }

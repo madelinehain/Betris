@@ -9,14 +9,14 @@ using std::vector;
 
 constexpr int BOARDLENGTH_INBLOCKS = 9;
 constexpr int BOARDHEIGHT_INBLOCKS = 19;
-constexpr float CELLSIZE = 40;
+constexpr float CELLSIZE = 40;  // size of each block/cell
 
 class Piece {
  public:
-  vector<sf::Vector2f> blocks {4};
-  sf::Vector2f origin;  // R
-  sf::Color pieceColor;
-  int PieceID, nextPieceID;
+  vector<sf::Vector2f> blocks {4};  // coordinates of each of the 4 block in a shape
+  sf::Vector2f origin;  // (R) rotation point
+  sf::Color pieceColor;  // unique color
+  int PieceID;  // 0-6
 
   Piece();
   Piece createNewPiece();
