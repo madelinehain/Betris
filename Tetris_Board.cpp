@@ -97,7 +97,7 @@ struct Board {
     board = content;
     boardWeight = 0;
 
-    for (int i = 0; i < boardY; i++) r.push_back(i);
+    for (int i = 0; i < BOARDY; i++) r.push_back(i);
     for (int i = 0; i < BOARDX; i++) c.push_back(i);
   }
 
@@ -131,6 +131,9 @@ int main() {
   // Setup board
   Board board;
   bool activeShape = true;
+  bool pause = false;
+  bool gameOver = false;
+  bool title == true;
 
   // Load board and game data
   sf::Font font;
@@ -143,11 +146,9 @@ int main() {
   sf::Texture over;
   over.loadFromFile("Resources/GameOver.png");
   sf::Sprite gameOverScreen(over);
-  
   sf::Texture pau;
   pau.loadFromFile("Resources/Pause.png");
   sf::Sprite pauseScreen(pau);
-  
   sf::Texture start;
   start.loadFromFile("Resources/Start");
   sf::Sprite startScreen(start);
@@ -213,6 +214,7 @@ int main() {
 //    ghost.draw(&window);
     board.draw(&window);
 
+
     window.display();
   }
 }
@@ -226,7 +228,7 @@ int main() {
 
 void Board::draw(sf::RenderWindow * window) {
   for (int i = 0; i < BOARDX; i++) {
-    for (int j = 0; j < boardY; j++) {
+    for (int j = 0; j < BOARDY; j++) {
       if (board.at(i).at(j).isVisible) {
         window -> draw(board.at(i).at(j).block);
       }
@@ -240,7 +242,7 @@ int Board::updateWeight() {
   int count = 0;
 
   for (int i = 0; i < BOARDX; i++) {
-    for (int j = 0; j < boardY; j++) {
+    for (int j = 0; j < BOARDY; j++) {
       if (board.at(i).at(j).isVisible) count++;
     }
   }
@@ -267,6 +269,7 @@ void checkEvents(sf::RenderWindow * window, sf::Event event, Shape * s, Board * 
       if (event.key.code == sf::Keyboard::Escape) window -> close();
       if (event.key.code == sf::Keyboard::Right) b -> updatePosition(s, 0, 1);
       if (event.key.code == sf::Keyboard::Left) b -> updatePosition(s, 0, -1);
+      // if (event.key.code == sf::Keyboard::P) window->draw(pauseScreen);
     }
   }
 }
