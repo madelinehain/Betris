@@ -104,16 +104,15 @@ int main() {
       std::tm now = *std::localtime(&time);
       accurate_time = besttime();
       differ = accurate_time - time;
-      dispscore;
       nowtime = time - initialtime;
 
       //change speed
       if ((differ < 0.25) && (differ > 0.20))
         testsquare.move(0, 40 * (1 + level));
-      if (nowtime > 10)  dispscore = level * nowtime;
-      else dispscore = nowtime;
+      if (nowtime > 10)  points = level * nowtime;
+      else points = nowtime;
 
-      gameScore.setString(to_string(dispscore));
+      gameScore.setString(to_string(points));
 
       level = nowtime / 10;
 
