@@ -127,6 +127,7 @@ Shape getCombination(int);
 
 
 
+
 int main() {
   // Window settings
   sf::RenderWindow window(sf::VideoMode(720, 800), "Tetris");
@@ -385,37 +386,37 @@ Shape getCombination(int ShapeID) {
   if (ShapeID == 0) {
     row = {0, 0, 0, 0};
     col = {0, 1, 2, 3};
-    shapeColor = sf::Color(50, 250, 0, 255);  // green
+    shapeColor = sf::Color(50, 250, 0);  // green
     
   } else if (ShapeID == 1) { // Z
     row = {0, 0, 1, 1};
     col = {0, 1, 1, 2};
-    shapeColor = sf::Color(230, 0, 0, 255);  // red
+    shapeColor = sf::Color(230, 0, 0);  // red
     
   } else if (ShapeID == 2) { // S (reverse Z)
     row = {1, 0, 1, 0};
     col = {0, 1, 1, 2};
-    shapeColor = sf::Color(215, 50, 235, 255);  // magenta
+    shapeColor = sf::Color(215, 50, 235);  // magenta
     
   } else if (ShapeID == 3) { // L
     row = {0, 0, 0, 1};
     col = {0, 1, 2, 2};
-    shapeColor = sf::Color(255, 235, 20, 255);  // yellow
+    shapeColor = sf::Color(255, 235, 20);  // yellow
     
   } else if (ShapeID == 4) { // J (reverse L)
     row = {1, 1, 0, 1};
     col = {0, 1, 2, 2};
-    shapeColor = sf::Color(23, 35, 200, 255);  // blue
+    shapeColor = sf::Color(23, 35, 200);  // blue
     
   } else if (ShapeID == 5) { // O (square)
     row = {0, 0, 1, 1};
     col = {0, 1, 0, 1};
-    shapeColor = sf::Color(255, 135, 0, 255);  // orange
+    shapeColor = sf::Color(255, 135, 0);  // orange
     
-  } else if (ShapeID == 6) {
+  } else {
     row = {0, 0, 1, 0};
     col = {0, 1, 1, 2};
-    shapeColor = sf::Color(5, 245, 245, 255);  // cyan
+    shapeColor = sf::Color(5, 245, 245);  // cyan
   }
   
   return Shape(shapeColor, row, col);
