@@ -10,11 +10,9 @@
 #include "math.h"
 #include <algorithm>
 
-
 using namespace std;
 
 #define PI 3.14159265359
-
 
 const int boardC = 10;
 const int boardR = 20;
@@ -29,7 +27,7 @@ struct Block {
 
   // Block constructor
   Block(sf::Color color, bool visibility) {
-    block.setSize((sf::Vector2f(40, 40)));
+    block.setSize((sf::Vector2f(shapeXY, shapeXY)));
     block.setFillColor(color);
     block.setOutlineThickness(-2);
     block.setOutlineColor(sf::Color::White);
@@ -41,13 +39,11 @@ struct Block {
 
 
 
-
 // SHAPE CLASS DEFINITION
 struct Shape {
   vector<Block> shapes;
   vector<int> row, col;
   int rotations, ShapeID;
-
 
   // reference shape's coordinates
   vector<vector<int>> reference;
@@ -91,18 +87,15 @@ struct Shape {
 // BOARD CLASS DEFINITION
 struct Board {
   vector<vector<Block>> board;
-
   int boardWeight;
-  vector<int> r, c;
+  vector<int> r{(boardR, 0)};
+  vector<int> c{(boardC, 0)};
 
   // Board initializer with invisible blocks
   Board() {
-    vector<vector<Block>> content(20, vector<Block>(10, Block(sf::Color::Transparent, false)));
+    vector<vector<Block>> content(boardR, vector<Block>(boardC, Block(sf::Color::Transparent, false)));
     board = content;
     boardWeight = 0;
-
-    for (int i = 0; i < 10; i++) r.push_back(i);
-    for (int i = 0; i < 20; i++) c.push_back(i);
   }
 
   // helper functions
@@ -123,7 +116,7 @@ struct Board {
 void checkEvents(sf::RenderWindow *, sf::Event, Shape *, Board *, sf::Sprite);
 bool checkEventsMenu(sf::RenderWindow * window, sf::Event event);
 Shape getCombination(int);
-void rotate(Shape * s, Board *b);
+void rotate(Shape *s, Board * b);
 
 
 
@@ -213,7 +206,7 @@ int main() {
       time.setString(to_string(timeNum));
 
       // Get the current Level
-      level = timeNum / 20 + 1;
+      level = timeNum / boardR + 1;
       Level.setString(to_string(level));
 
       // Get the current Score
@@ -222,13 +215,12 @@ int main() {
 
       refreshTime += refreshClock.restart();
 
-
       // Update piece position
       if (refreshTime.asSeconds() >= gameSpeed) {
 
         if (!board.updatePosition(&currentShape, 1, 0)) {
 
-          // copy blocks
+          // Copy blocks
           for (int i = 0; i < 4; i++) {
             int row = currentShape.row.at(i);
             int col = currentShape.col.at(i);
@@ -290,8 +282,8 @@ int main() {
 // BOARD CLASS FUNCTIONS -------------------------
 
 void Board::draw(sf::RenderWindow * window) {
-  for (int r = 0; r < 20; r++) {
-    for (int c = 0; c < 10; c++) {
+  for (int r = 0; r < boardR; r++) {
+    for (int c = 0; c < boardC; c++) {
       if (board.at(r).at(c).isVisible) {
         window -> draw(board.at(r).at(c).block);
       }
@@ -343,11 +335,11 @@ int Board::clearFullRows() {
       for (int k = i; k > 0; k--) {
         board.at(k) = board.at(k - 1);
         for (int q = 0; q < boardC; q++) {
-          board.at(k).at(q).block.move(0, 40);
+          board.at(k).at(q).block.move(0, shapeXY);
         }
       }
 
-      // Refill the first row as empty
+      // Reset the first row as empty
       for (int g = 0; g < boardC; g++) {
         board.at(0).at(g) = Block(sf::Color::Transparent, false);
       }
@@ -376,16 +368,16 @@ bool Board::isGameOver() {
 
 
 
-  // Pivot is (0,1) unless ShapeID = 4 (J) then it is (1,1)
-  // row.at(1) and col.at(1) = pivot point (0, 1)
-  // a_off_x -> a offset x
+// Pivot is (0,1) unless ShapeID = 4 (J) then it is (1,1)
+// row.at(1) and col.at(1) = pivot point (0, 1)
+// a_off_x -> a offset x
 
 
 
 //  Matrix rotation
 // [cos deg  -sin deg]   [ cos deg  -sin deg]
 // [sin deg   cos deg]   [-sin deg   cos deg]
-//      clockwise         counter clockwise 
+//      clockwise         counter clockwise
 //        [0, -1]              [0, -1]
 //        [1,  0]              [-1, 0]
 //         1 r                  2/3 r
@@ -407,10 +399,10 @@ bool Board::isGameOver() {
 //       oldy = row.at(i);
 //       tempx = oldx - originx;
 //       tempy = oldy - originy;
-//       if (rotations % 2 == 1) {  
+//       if (rotations % 2 == 1) {
 //         newx = (0 * tempx) + (-1 * tempy);  // counter clockwise
 //         newy = (-1 * tempx) + (0 * tempy);
-//       } else {  
+//       } else {
 //         newx = (0 * tempx) + (-1 * tempy);   // clockwise
 //         newy = (1 * tempx) + (0 * tempy);
 //       }
@@ -419,7 +411,7 @@ bool Board::isGameOver() {
 //     }
 //     return;
 //   } else {
-//     for (int i = 0; i < 4; i++) {  
+//     for (int i = 0; i < 4; i++) {
 //       oldx = xcopy.at(i);  // center of rotation
 //       oldy = ycopy.at(i);
 //       tempx = oldx - originx;
@@ -479,8 +471,8 @@ bool Board::isGameOver() {
 void Shape::draw(sf::RenderWindow * window, bool isNext) {
   if (!isNext) {
     for (int i = 0; i < 4; i++) {
-      int xPos = col.at(i) * 40;
-      int yPos = row.at(i) * 40;
+      int xPos = col.at(i) * shapeXY;
+      int yPos = row.at(i) * shapeXY;
 
       shapes.at(i).block.setPosition(xPos, yPos);
 
@@ -517,7 +509,7 @@ void Shape::draw(sf::RenderWindow * window, bool isNext) {
 
 
 // Checks all game events
-void checkEvents(sf::RenderWindow * window, sf::Event event, Shape * s, Board * b,
+void checkEvents(sf::RenderWindow * window, sf::Event event, Shape *s, Board * b,
                  sf::Sprite pause) {
   while (window -> pollEvent(event)) {
     // Close window
@@ -608,11 +600,11 @@ Shape getCombination(int ShapeID) {
   return Shape(shapeColor, row, col);
 }
 
-void rotate(Shape* s, Board * b) {
+void rotate(Shape *s, Board * b) {
   float angle = 90 * (PI / 180);
   float pivotx = 0, pivoty = 1;
   vector<int> ycopy = s->row;
-  vector<int> xcopy = s->col;  
+  vector<int> xcopy = s->col;
   bool possible = true;
 
   // square doesn't rotate
@@ -641,21 +633,21 @@ void rotate(Shape* s, Board * b) {
   float cy = pivoty + (c_off_x * sinf(angle) + c_off_y * cosf(angle));
 
   // check collision then add back values
-for (int x = 0; x < boardC; x++) {
-  for (int y = 0; y < boardR; y++) {
-    for (int i = 0; i < 4; i++) {
+  for (int x = 0; x < boardC; x++) {
+    for (int y = 0; y < boardR; y++) {
+      for (int i = 0; i < 4; i++) {
 
-      if ((s->reference.at(x).at(xcopy.at(i)) == 1)
-        || (ycopy.at(i) + s->reference.at(x).at(y) < 0) 
-        ||(xcopy.at(i) + s->reference.at(x).at(y) > boardR)
-        || (ycopy.at(i) + s->reference.at(x).at(y) < 0)) possible = false;
+        if ((s->reference.at(x).at(xcopy.at(i)) == 1)
+            || (ycopy.at(i) + s->reference.at(x).at(y) < 0)
+            || (xcopy.at(i) + s->reference.at(x).at(y) > boardR)
+            || (ycopy.at(i) + s->reference.at(x).at(y) < 0)) possible = false;
       }
+    }
   }
-}
-    xcopy.at(0) = ax;
-    xcopy.at(2) = bx;
-    xcopy.at(3) = cx;
-    ycopy.at(0) = ay;
-    ycopy.at(2) = by;
-    ycopy.at(3) = cy;
+  xcopy.at(0) = ax;
+  xcopy.at(2) = bx;
+  xcopy.at(3) = cx;
+  ycopy.at(0) = ay;
+  ycopy.at(2) = by;
+  ycopy.at(3) = cy;
 }

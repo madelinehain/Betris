@@ -7,23 +7,19 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "math.h"
 #include <algorithm>
 
 
 using namespace std;
 
-
+#define PI 3.14159265359
 
 
 const int boardC = 10;
 const int boardR = 20;
 const int shapeXY = 40;
-
 const int gameSpeed = 2;
-
-
-
-
 
 
 // BLOCK CLASS DEFINITION
@@ -49,9 +45,11 @@ struct Block {
 // SHAPE CLASS DEFINITION
 struct Shape {
   vector<Block> shapes;
-  vector<int> row;
-  vector<int> col;
+  vector<int> row, col;
+  int rotations, ShapeID;
 
+
+  // reference shape's coordinates
   vector<vector<int>> reference;
 
   sf::Color color;
@@ -61,6 +59,8 @@ struct Shape {
     color = Color;
     row = r;
     col = c;
+    rotations = 0;
+    ShapeID = rand() % 6;
 
     vector<vector<int>> reference (4, vector<int>(4, 0));
 
@@ -74,8 +74,7 @@ struct Shape {
 
   // helper functions
   void draw(sf::RenderWindow *, bool);
-  void rotate();
-  void alignShape();
+  // void alignShape();
 };
 
 
@@ -94,8 +93,7 @@ struct Board {
   vector<vector<Block>> board;
 
   int boardWeight;
-  vector<int> r;
-  vector<int> c;
+  vector<int> r, c;
 
   // Board initializer with invisible blocks
   Board() {
@@ -125,7 +123,7 @@ struct Board {
 void checkEvents(sf::RenderWindow *, sf::Event, Shape *, Board *, sf::Sprite);
 bool checkEventsMenu(sf::RenderWindow * window, sf::Event event);
 Shape getCombination(int);
-
+void rotate(Shape * s, Board *b);
 
 
 
@@ -376,71 +374,105 @@ bool Board::isGameOver() {
 
 // SHAPE CLASS FUNCTIONS -------------------------
 
-void Shape::rotate() {
-// Get transpose of tile
-int ulr=row.at(0);
-int ulc=col.at(0);
-vector<int> rowcopy, colcopy;
-colcopy=col;
-rowcopy=row;
-std::swap(rowcopy,colcopy);
-std::reverse(rowcopy.begin(), rowcopy.end());
 
-if (ulr!=rowcopy.at(0)){
-int rowdif=ulr-rowcopy.at(0);
-for (int i=0; i<rowcopy.size(); i++) {
-rowcopy.at(i)= rowcopy.at(i)+rowdif;
-}
-}
-if (ulc!=colcopy.at(0)){
-int coldif=ulc-colcopy.at(0);
-for (int i=0; i<colcopy.size(); i++) {
-colcopy.at(i)= colcopy.at(i)+coldif;
-}
-}
-col=colcopy;
-row=rowcopy;
-}
-// Align the tile to the top-left
-//alignShape();
-}
+
+  // Pivot is (0,1) unless ShapeID = 4 (J) then it is (1,1)
+  // row.at(1) and col.at(1) = pivot point (0, 1)
+  // a_off_x -> a offset x
 
 
 
-void Shape::alignShape() {
-  // Push shape blocks upwards
-  while (all_of(reference.at(0).begin(), reference.at(0).end(), [] (int i) {
-  return i == 0;
-})) {
-    std::rotate(reference.begin(), reference.begin() + 1, reference.end());
-  }
+//  Matrix rotation
+// [cos deg  -sin deg]   [ cos deg  -sin deg]
+// [sin deg   cos deg]   [-sin deg   cos deg]
+//      clockwise         counter clockwise 
+//        [0, -1]              [0, -1]
+//        [1,  0]              [-1, 0]
+//         1 r                  2/3 r
+// void Shape::rotate() {
+//   vector<int> ycopy = row;
+//   vector<int> xcopy = col;
+//   int oldx, oldy, tempx, tempy, newx, newy;
+//   int originx = 0;  // center of rotation for I
+//   int originy = 1;
 
-  // Push shape blocks to the left
-  vector<int> column;
-  do {
-    column = vector<int> (4, 0);
-    for (int i = 0; i < 4; i++) column.at(i) = reference.at(i).at(0);
+//   // O (square) no rotation
+//   if (ShapeID == 5) return;
 
-    if (all_of(column.begin(), column.end(), [] (int i) {
-    return i == 0;
-  })) {
-      for (int i = 0; i < 4; i++) std::rotate(reference.at(i).begin(),
-                                                reference.at(i).begin() + 1,
-                                                reference.at(i).end());
-    }
-  } while (all_of(column.begin(), column.end(), [] (int i) {
-  return i == 0;
-}));
+//   // I (line)
+//   if (ShapeID == 0) {
+//     rotations++;
+//     for (int i = 0; i < 4; i++) {
+//       oldx = col.at(i);
+//       oldy = row.at(i);
+//       tempx = oldx - originx;
+//       tempy = oldy - originy;
+//       if (rotations % 2 == 1) {  
+//         newx = (0 * tempx) + (-1 * tempy);  // counter clockwise
+//         newy = (-1 * tempx) + (0 * tempy);
+//       } else {  
+//         newx = (0 * tempx) + (-1 * tempy);   // clockwise
+//         newy = (1 * tempx) + (0 * tempy);
+//       }
+//       xcopy.at(i) = newx + originx;
+//       ycopy.at(i) = newy + originy;
+//     }
+//     return;
+//   } else {
+//     for (int i = 0; i < 4; i++) {  
+//       oldx = xcopy.at(i);  // center of rotation
+//       oldy = ycopy.at(i);
+//       tempx = oldx - originx;
+//       tempy = oldy - originy;
+//       newx = (0 * tempx) + (-1 * tempy); // clockwise
+//       newy = (1 * tempx) + (0 * tempy);
+//       xcopy.at(i) = newx + originx;
+//       ycopy.at(i) = newy + originy;
+//     }
+//   }
+//   // correct boundaries until they don't need correction
+//   // if (rotateCorrection() == false);
+//   row = ycopy;
+//   col = xcopy;
 
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
-      if (reference.at(i).at(j) != '0') {
-        row.at(reference.at(i).at(j)) = i;
-        col.at(reference.at(i).at(j)) = j;
-      }
-    }
-  }
-}
+//   return;
+// }
+
+
+// void Shape::alignShape() {
+//   // Push shape blocks upwards
+//   while (all_of(reference.at(0).begin(), reference.at(0).end(), [] (int i) {
+//   return i == 0;
+// })) {
+//     std::rotate(reference.begin(), reference.begin() + 1, reference.end());
+//   }
+
+//   // Push shape blocks to the left
+//   vector<int> column;
+//   do {
+//     column = vector<int> (4, 0);
+//     for (int i = 0; i < 4; i++) column.at(i) = reference.at(i).at(0);
+
+//     if (all_of(column.begin(), column.end(), [] (int i) {
+//     return i == 0;
+//   })) {
+//       for (int i = 0; i < 4; i++) std::rotate(reference.at(i).begin(),
+//                                                 reference.at(i).begin() + 1,
+//                                                 reference.at(i).end());
+//     }
+//   } while (all_of(column.begin(), column.end(), [] (int i) {
+//   return i == 0;
+// }));
+
+//   for (int i = 0; i < 4; i++) {
+//     for (int j = 0; j < 4; j++) {
+//       if (reference.at(i).at(j) != '0') {
+//         row.at(reference.at(i).at(j)) = i;
+//         col.at(reference.at(i).at(j)) = j;
+//       }
+//     }
+//   }
+// }
 
 
 // Draw a shape on the board
@@ -459,7 +491,7 @@ void Shape::draw(sf::RenderWindow * window, bool isNext) {
     for (int i = 0; i < 4; i++) {
       tempClone.shapes.at(i).block.setSize(sf::Vector2f(30, 30));
 
-      int xPos = tempClone.col.at(i) * 30 + 505;
+      int xPos = tempClone.col.at(i) * 30 + 520;
       int yPos = tempClone.row.at(i) * 30 + 310;
 
       tempClone.shapes.at(i).block.setPosition(xPos, yPos);
@@ -482,6 +514,8 @@ void Shape::draw(sf::RenderWindow * window, bool isNext) {
 
 // MAIN FUNCTIONS -------------------------
 
+
+
 // Checks all game events
 void checkEvents(sf::RenderWindow * window, sf::Event event, Shape * s, Board * b,
                  sf::Sprite pause) {
@@ -492,8 +526,8 @@ void checkEvents(sf::RenderWindow * window, sf::Event event, Shape * s, Board * 
     // Keyboard events
     if (event.type == sf::Event::KeyPressed) {
       sf::Keyboard::Key key = event.key.code;
+      if (key == sf::Keyboard::R) rotate(s, b);
       if (key == sf::Keyboard::Escape) exit(1);
-      if (key == sf::Keyboard::R) s -> rotate();
       if (key == sf::Keyboard::Right) b -> updatePosition(s, 0, 1);
       if (key == sf::Keyboard::Left) b -> updatePosition(s, 0, -1);
       if (key == sf::Keyboard::P || key == sf::Keyboard::Space) {
@@ -532,11 +566,10 @@ bool checkEventsMenu(sf::RenderWindow * window, sf::Event event) {
 
 
 Shape getCombination(int ShapeID) {
-  vector<int> row;
-  vector<int> col;
+  vector<int> row, col;
   sf::Color shapeColor;
 
-  if (ShapeID == 0) {
+  if (ShapeID == 0) {  // I
     row = {0, 0, 0, 0};
     col = {0, 1, 2, 3};
     shapeColor = sf::Color(50, 250, 0);  // green
@@ -567,10 +600,62 @@ Shape getCombination(int ShapeID) {
     shapeColor = sf::Color(255, 135, 0);  // orange
 
   } else {
-    row = {0, 0, 1, 0};
+    row = {0, 0, 1, 0};  // T
     col = {0, 1, 1, 2};
     shapeColor = sf::Color(5, 245, 245);  // cyan
   }
 
   return Shape(shapeColor, row, col);
+}
+
+void rotate(Shape* s, Board * b) {
+  float angle = 90 * (PI / 180);
+  float pivotx = 0, pivoty = 1;
+  vector<int> ycopy = s->row;
+  vector<int> xcopy = s->col;  
+  bool possible = true;
+
+  // square doesn't rotate
+  if (s->ShapeID == 5) return;
+  // line has a different pivot point
+  if (s->ShapeID == 4) pivotx = 1;
+
+  // line
+  if (s->ShapeID == 0) {
+
+  }
+  // set origin to the board values and add back values once it's been rotated
+
+  float a_off_x = xcopy.at(0) - pivotx;
+  float b_off_x = xcopy.at(2) - pivotx;
+  float c_off_x = xcopy.at(3) - pivotx;
+  float a_off_y = ycopy.at(0) - pivoty;
+  float b_off_y = ycopy.at(2) - pivoty;
+  float c_off_y = ycopy.at(2) - pivoty;
+
+  float ax = pivotx + (a_off_x * cosf(angle) - a_off_y * sinf(angle));
+  float ay = pivoty + (a_off_x * sinf(angle) + a_off_y * cosf(angle));
+  float bx = pivotx + (b_off_x * cosf(angle) - b_off_y * sinf(angle));
+  float by = pivoty + (b_off_x * sinf(angle) + b_off_y * cosf(angle));
+  float cx = pivotx + (c_off_x * cosf(angle) - c_off_y * sinf(angle));
+  float cy = pivoty + (c_off_x * sinf(angle) + c_off_y * cosf(angle));
+
+  // check collision then add back values
+for (int x = 0; x < boardC; x++) {
+  for (int y = 0; y < boardR; y++) {
+    for (int i = 0; i < 4; i++) {
+
+      if ((s->reference.at(x).at(xcopy.at(i)) == 1)
+        || (ycopy.at(i) + s->reference.at(x).at(y) < 0) 
+        ||(xcopy.at(i) + s->reference.at(x).at(y) > boardR)
+        || (ycopy.at(i) + s->reference.at(x).at(y) < 0)) possible = false;
+      }
+  }
+}
+    xcopy.at(0) = ax;
+    xcopy.at(2) = bx;
+    xcopy.at(3) = cx;
+    ycopy.at(0) = ay;
+    ycopy.at(2) = by;
+    ycopy.at(3) = cy;
 }
