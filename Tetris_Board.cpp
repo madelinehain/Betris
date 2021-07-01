@@ -185,11 +185,11 @@ int main() {
     time.setPosition(450, 715);
 
     sf::Text Score("999", font, 50);
-    Score.setPosition(450, 510);
+    Score.setPosition(450, 520);
     int score = 4;
 
     sf::Text Level("999", font, 50);
-    Level.setPosition(450, 610);
+    Level.setPosition(450, 615);
     int level = 1;
 
     sf::Time refreshTime;
