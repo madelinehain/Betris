@@ -1,0 +1,35 @@
+#ifndef SHAPE_HPP
+#define SHAPE_HPP
+
+#include "blockStruct.hpp"
+#include <SFML/Graphics.hpp>
+#include <vector>
+
+using namespace std;
+
+extern const int CELLSIZE;
+
+// SHAPE CLASS DEFINITION
+struct Shape {
+public:
+  vector<Block> shapes;
+  vector<int> row, col;
+  int rotations;
+  int ShapeID = rand() % 6;
+  vector<vector<int>> reference;
+  sf::Color color;
+
+
+  // reference shape's coordinates
+
+
+  // Shape initializer based on color and row/col
+  Shape(sf::Color Color, vector<int> r, vector<int> c);
+
+  // helper functions
+  void draw(sf::RenderWindow *, bool);
+  void rotate();
+  //void alignShape();
+};
+
+#endif

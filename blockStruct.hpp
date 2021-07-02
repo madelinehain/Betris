@@ -1,18 +1,21 @@
-#ifndef BLOCK_STRUCT
-#define BLOCK_STRUCT
-#include<SFML/Graphics.hpp>
+#ifndef BLOCKSTRUCT_HPP_
+#define BLOCKSTRUCT_HPP_
+
+#include <SFML/Graphics.hpp>
 using namespace std;
 
-const float CELLSIZE = 40;
+const int CELLSIZE = 40;
+const int BOARDR = 20;
+const int BOARDC = 10;
 
-// BLOCK STRUCT DEFINITION
 struct Block {
-public:
+ public:
   sf::RectangleShape block;
   sf::Color blockColor;
- bool isVisible;
+  bool isVisible;
 
   // Block constructor
   Block(sf::Color color, bool visibility);
 };
-#endif // BLOCK_STRUCT
+
+#endif  // BLOCKSTRUCT_HPP_

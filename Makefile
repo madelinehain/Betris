@@ -10,4 +10,4 @@
 # if the programs need to be re-built
 
 tetris: Tetris_Board.cpp
-	g++ -g Tetris_Board.cpp -o tetris -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+	g++ -g  Tetris_Board.cpp boardStruct.cpp blockStruct.cpp  shapeStruct.cpp -o tetris -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio

@@ -1,28 +1,32 @@
-#ifndef SHAPE_STRUCT
-#define SHAPE_STRUCT
+#ifndef SHAPESTRUCT_HPP_
+#define SHAPESTRUCT_HPP_
+
 #include <vector>
-#include <SFML/Graphics.hpp>
 #include "blockStruct.hpp"
+#include <SFML/Graphics.hpp>
 
 using namespace std;
 
-extern const float CELLSIZE;
+extern const int CELLSIZE;
 
+// SHAPE CLASS DEFINITION
 struct Shape {
-public:
-  vector<Block> shapes {4};
+ public:
+  vector<Block> shapes;
   vector<int> row, col;
-    vector<vector<int>> reference (4, vector<int>(4, 0));
+  int rotations;
+  int ShapeID = rand() % 6;
+  // Reference board's coordinates
+  vector<vector<int>> reference;
+  sf::Color color;
 
-  sf::Color shapeColor;
-  int shapeID;
+  // Shape initializer based on color and row/col
+  Shape(sf::Color Color, vector<int> r, vector<int> c);
 
-  // Constructor
-  Shape(int ID);
   // Helper functions
-  void draw(sf::RenderWindow * window);
-  void drawNext(sf::RenderWindow * window);
+  void draw(sf::RenderWindow *, bool);
   void rotate();
-  void alignShape();
+  // void alignShape();
 };
-#endif  // SHAPE_STRUCT
+
+#endif  // SHAPESTRUCT_HPP_
