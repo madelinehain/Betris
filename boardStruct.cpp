@@ -1,8 +1,6 @@
 #include "boardStruct.hpp"
 #include <vector>
 
-
-// Board initializer with invisible blocks
 Board::Board() {
   vector<vector<Block>> content(BOARDR, vector<Block>
                                 (BOARDC, Block(sf::Color::Transparent, false)));

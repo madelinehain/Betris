@@ -14,8 +14,6 @@
 
 using namespace std;
 
-#define PI 3.14159265359
-
 extern const int BOARDC;
 extern const int BOARDR;
 extern const int CELLSIZE;
@@ -78,10 +76,8 @@ int main() {
     bool activeShape = true;
     bool gameOver = false;
 
-    // Keep track of game time
-    sf::Clock gameClock;
-
     // Create time, score, and level objects
+    sf::Clock gameClock;
     sf::Text time("999", font, 50);
     time.setPosition(450, 715);
 
@@ -143,7 +139,6 @@ int main() {
       sf::Event event;
       checkEvents(&window, event, &currentShape, &board, pause);
 
-
       // Draw all elements & display the window
       board.clearFullRows();
       window.clear();
@@ -178,12 +173,10 @@ int main() {
 
 
 
-
 // MAIN FUNCTIONS -------------------------
 
 
 
-// Checks all game events
 void checkEvents(sf::RenderWindow * window, sf::Event event,
                 Shape * s, Board * b, sf::Sprite pause) {
   while (window -> pollEvent(event)) {
@@ -216,7 +209,6 @@ void checkEvents(sf::RenderWindow * window, sf::Event event,
   }
 }
 
-
 bool checkEventsMenu(sf::RenderWindow * window, sf::Event event) {
   while (window -> pollEvent(event)) {
     // Close window
@@ -231,7 +223,7 @@ bool checkEventsMenu(sf::RenderWindow * window, sf::Event event) {
   return false;
 }
 
-
+// Create a shape from an ID
 Shape getCombination(int ShapeID) {
   vector<int> row, col;
   sf::Color shapeColor;

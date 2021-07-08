@@ -12,9 +12,7 @@ struct Board {
   vector<int> r, c;
   int boardWeight;
 
-  // Initialize board with invisible blocks
   Board();
-  // Helper functions
   void draw(sf::RenderWindow *);
   bool updatePosition(Shape *, int, int);
   int clearFullRows();

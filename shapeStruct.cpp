@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 using namespace std;
 
-
 Shape::Shape(sf::Color Color, vector<int> r, vector<int> c) {
   color = Color;
   row = r;
@@ -20,7 +19,6 @@ Shape::Shape(sf::Color Color, vector<int> r, vector<int> c) {
   }
 }
 
-// Draw a shape on the board
 void Shape::draw(sf::RenderWindow * window, bool isNext) {
   if (!isNext) {
     for (int i = 0; i < 4; i++) {

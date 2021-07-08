@@ -14,7 +14,6 @@ struct Block {
   sf::Color blockColor;
   bool isVisible;
 
-  // Block constructor
   Block(sf::Color color, bool visibility);
 };
 
